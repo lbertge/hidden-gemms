@@ -25,11 +25,11 @@
   
   <!-- Title text -->
   <text x="400" y="85" font-family="Arial Black, sans-serif" font-size="48" text-anchor="middle" fill="url(#titleGradient)">
-    Hidden GEMM
+    Hidden GEMMs
   </text>
   
   <!-- Subtitle with brighter color -->
   <text x="400" y="130" font-family="Arial, sans-serif" font-size="24" text-anchor="middle" fill="#A5B4FC">
-    Unearthing CUDA Performance
+    Unearthing CUDA Optimizations for Matrix Multiplication
   </text>
 </svg>
