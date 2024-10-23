@@ -135,9 +135,9 @@ void benchmark(int M, int N, int K, int num_iterations = 10) {
     
     // Print results
     printf("Matrix dimensions: M=%d, N=%d, K=%d\n", M, N, K);
-    printf("Custom implementation: %.3f ms\n", custom_time);
+    printf("Tiling implementation: %.3f ms\n", custom_time);
     printf("cuBLAS implementation: %.3f ms\n", cublas_time);
-    printf("Performance ratio (cuBLAS/custom): %.2fx\n", custom_time/cublas_time);
+    printf("Performance ratio (cuBLAS/tiling): %.2fx\n", custom_time/cublas_time);
     
     // Verify results
     cudaMemcpy(h_C, d_C, size_C, cudaMemcpyDeviceToHost);
