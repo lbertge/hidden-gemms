@@ -2,6 +2,8 @@
 
 # Benchmarks
 
+## Tiling 
+```
 Matrix dimensions: M=512, N=512, K=512
 Tiling implementation: 0.043 ms
 cuBLAS implementation: 0.012 ms
@@ -25,3 +27,4 @@ Tiling implementation: 22.097 ms
 cuBLAS implementation: 2.568 ms
 Performance ratio (cuBLAS/tiling): 8.60x
 Maximum difference from cuBLAS: 0.000000e+00
+```
