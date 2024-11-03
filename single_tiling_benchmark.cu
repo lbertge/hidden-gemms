@@ -2,13 +2,16 @@
 #include <cublas_v2.h>
 #include <stdio.h>
 #include <chrono>
+#include <assert.h>
+#include <random>
 
 // Tile size for shared memory
 #define TILE_WIDTH 32
 
-// CUDA kernel for tiled matrix multiplication
+// CUDA kernel for tiled matrix multiplication matching SGEMM
 __global__ void tiledMatrixMulKernel(float* A, float* B, float* C, 
-                                    int M, int N, int K) {
+                                    int M, int N, int K,
+                                    float alpha, float beta) {
     __shared__ float As[TILE_WIDTH][TILE_WIDTH];
     __shared__ float Bs[TILE_WIDTH][TILE_WIDTH];
     
@@ -46,35 +49,42 @@ __global__ void tiledMatrixMulKernel(float* A, float* B, float* C,
         __syncthreads();
     }
     
-    // Write result
-    if (row < M && col < N)
-        C[row * N + col] = sum;
+    // Write result with alpha and beta factors
+    if (row < M && col < N) {
+        C[row * N + col] = alpha * sum + beta * C[row * N + col];
+    }
 }
 
-// Wrapper function for kernel launch
-void tiledMatrixMul(float* A, float* B, float* C, int M, int N, int K) {
+// Updated wrapper function
+void tiledMatrixMul(float* A, float* B, float* C, 
+                    int M, int N, int K,
+                    float alpha, float beta) {
     dim3 dimBlock(TILE_WIDTH, TILE_WIDTH);
     dim3 dimGrid((N + TILE_WIDTH - 1) / TILE_WIDTH, 
                  (M + TILE_WIDTH - 1) / TILE_WIDTH);
     
-    tiledMatrixMulKernel<<<dimGrid, dimBlock>>>(A, B, C, M, N, K);
+    tiledMatrixMulKernel<<<dimGrid, dimBlock>>>(A, B, C, M, N, K, alpha, beta);
 }
 
-// Benchmark function
+// Updated benchmark function
 void benchmark(int M, int N, int K, int num_iterations = 10) {
     size_t size_A = M * K * sizeof(float);
     size_t size_B = K * N * sizeof(float);
     size_t size_C = M * N * sizeof(float);
     
     // Allocate host memory
-    float *h_A = (float*)malloc(size_A);
-    float *h_B = (float*)malloc(size_B);
-    float *h_C = (float*)malloc(size_C);
-    float *h_C_cublas = (float*)malloc(size_C);
+    float *h_A = new float[M * K];
+    float *h_B = new float[K * N];
+    float *h_C = new float[M * N];
+    float *h_C_cublas = new float[M * N];
     
     // Initialize matrices
-    for (int i = 0; i < M * K; i++) h_A[i] = rand() / (float)RAND_MAX;
-    for (int i = 0; i < K * N; i++) h_B[i] = rand() / (float)RAND_MAX;
+    int some_seed = 759;
+    std::mt19937 generator(some_seed);
+    std::uniform_real_distribution<float> distribution(0.0f, 1.0f);
+    for (int i = 0; i < M * K; i++) h_A[i] = distribution(generator);
+    for (int i = 0; i < K * N; i++) h_B[i] = distribution(generator);
+    for (int i = 0; i < M * N; i++) h_C[i] = distribution(generator);  // Initialize C as well
     
     // Allocate device memory
     float *d_A, *d_B, *d_C, *d_C_cublas;
@@ -86,17 +96,19 @@ void benchmark(int M, int N, int K, int num_iterations = 10) {
     // Copy data to device
     cudaMemcpy(d_A, h_A, size_A, cudaMemcpyHostToDevice);
     cudaMemcpy(d_B, h_B, size_B, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_C, h_C, size_C, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_C_cublas, h_C, size_C, cudaMemcpyHostToDevice);  // Copy same C data
     
     // Create cuBLAS handle
     cublasHandle_t handle;
     cublasCreate(&handle);
     
-    // Constants for cublasSgemm
-    float alpha = 1.0f;
-    float beta = 0.0f;
+    // Constants for SGEMM
+    float alpha = 0.5f;
+    float beta = 0.5f;
     
     // Warmup
-    tiledMatrixMul(d_A, d_B, d_C, M, N, K);
+    tiledMatrixMul(d_A, d_B, d_C, M, N, K, alpha, beta);
     cublasSgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N,
                 N, M, K, &alpha,
                 d_B, N, d_A, K, &beta,
@@ -109,7 +121,7 @@ void benchmark(int M, int N, int K, int num_iterations = 10) {
     
     cudaEventRecord(start);
     for (int i = 0; i < num_iterations; i++) {
-        tiledMatrixMul(d_A, d_B, d_C, M, N, K);
+        tiledMatrixMul(d_A, d_B, d_C, M, N, K, alpha, beta);
     }
     cudaEventRecord(stop);
     cudaEventSynchronize(stop);
@@ -135,20 +147,19 @@ void benchmark(int M, int N, int K, int num_iterations = 10) {
     
     // Print results
     printf("Matrix dimensions: M=%d, N=%d, K=%d\n", M, N, K);
-    printf("Tiling implementation: %.3f ms\n", custom_time);
+    printf("Custom implementation: %.3f ms\n", custom_time);
     printf("cuBLAS implementation: %.3f ms\n", cublas_time);
-    printf("Performance ratio (cuBLAS/tiling): %.2fx\n", custom_time/cublas_time);
+    printf("Performance ratio (cuBLAS/custom): %.2fx\n", custom_time/cublas_time);
     
     // Verify results
     cudaMemcpy(h_C, d_C, size_C, cudaMemcpyDeviceToHost);
     cudaMemcpy(h_C_cublas, d_C_cublas, size_C, cudaMemcpyDeviceToHost);
     
-    float max_diff = 0.0f;
+    // assert that the results are within some epsilon of each other
+    float epsilon = 1e-3;
     for (int i = 0; i < M * N; i++) {
-        float diff = fabs(h_C[i] - h_C_cublas[i]);
-        max_diff = max(max_diff, diff);
+        assert(fabs(h_C[i] - h_C_cublas[i]) < epsilon);
     }
-    printf("Maximum difference from cuBLAS: %e\n", max_diff);
     
     // Cleanup
     free(h_A);
