@@ -14,45 +14,55 @@ __global__ void tiledMatrixMulKernel(float* A, float* B, float* C,
                                     float alpha, float beta) {
     __shared__ float As[TILE_WIDTH][TILE_WIDTH];
     __shared__ float Bs[TILE_WIDTH][TILE_WIDTH];
-    
-    int bx = blockIdx.x;
-    int by = blockIdx.y;
-    int tx = threadIdx.x;
-    int ty = threadIdx.y;
-    
-    // Calculate row and column for this thread
-    int row = by * TILE_WIDTH + ty;
-    int col = bx * TILE_WIDTH + tx;
-    
-    float sum = 0.0f;
-    
-    // Loop over tiles
+
+    // first, figure out which output tile we are working on 
+    int cRow = blockIdx.x; 
+    int cCol = blockIdx.y; 
+
+    // compute which element in the output tile this thread is responsible for
+    int tRow = threadIdx.y; 
+    int tCol = threadIdx.x; 
+
+    // the actual row & col that we're accessing in this thread
+    int row = cRow * TILE_WIDTH + tRow; 
+    int col = cCol * TILE_WIDTH + tCol; 
+
+    float sum = 0.0f; 
+
+    // loop over all the tiles that contribute to this output tile
     for (int t = 0; t < (K + TILE_WIDTH - 1) / TILE_WIDTH; t++) {
-        // Load tiles into shared memory
-        if (row < M && t * TILE_WIDTH + tx < K)
-            As[ty][tx] = A[row * K + t * TILE_WIDTH + tx];
-        else
-            As[ty][tx] = 0.0f;
-            
-        if (t * TILE_WIDTH + ty < K && col < N)
-            Bs[ty][tx] = B[(t * TILE_WIDTH + ty) * N + col];
-        else
-            Bs[ty][tx] = 0.0f;
-            
-        __syncthreads();
-        
-        // Compute partial dot product
-        for (int k = 0; k < TILE_WIDTH; k++) {
-            sum += As[ty][k] * Bs[k][tx];
+        // load the correct elements for this tile into shared memory
+        // this is for A
+        if (row < M && t * TILE_WIDTH + tCol < K) {
+            As[tRow][tCol] = A[row * K + t * TILE_WIDTH + tCol];
+        } else {
+            As[tRow][tCol] = 0.0f; 
         }
-        
-        __syncthreads();
+
+        // this is for B
+        if (t * TILE_WIDTH + tRow < K && col < N) {
+            Bs[tRow][tCol] = B[(t * TILE_WIDTH + tRow) * N + col];
+        } else {
+            Bs[tRow][tCol] = 0.0f; 
+        }
+
+        // wait for all threads to finish loading before proceeding
+        __syncthreads(); 
+
+        // compute the dot product for the current tile
+        for (int k = 0; k < TILE_WIDTH; k++) {
+            sum += As[tRow][k] * Bs[k][tCol];
+        }
+
+        // wait for all threads to finish computing the dot product before proceeding
+        __syncthreads(); 
     }
-    
-    // Write result with alpha and beta factors
+
+    // write the computed value to the correct position in the output tile
     if (row < M && col < N) {
         C[row * N + col] = alpha * sum + beta * C[row * N + col];
     }
+
 }
 
 // Updated wrapper function
@@ -145,10 +155,16 @@ void benchmark(int M, int N, int K, int num_iterations = 10) {
     cudaEventElapsedTime(&cublas_time, start, stop);
     cublas_time /= num_iterations;
     
+    // Calculate GFLOPS
+    // For matrix multiplication: 2*M*N*K operations (M*N*K multiplications and M*N*K additions)
+    double operations = 2.0 * M * N * K;
+    double gflops = (operations * 1e-9) / (custom_time * 1e-3); // Convert ms to s
+    double cublas_gflops = (operations * 1e-9) / (cublas_time * 1e-3);
+    
     // Print results
     printf("Matrix dimensions: M=%d, N=%d, K=%d\n", M, N, K);
-    printf("Custom implementation: %.3f ms\n", custom_time);
-    printf("cuBLAS implementation: %.3f ms\n", cublas_time);
+    printf("Custom implementation: %.3f ms (%.2f GFLOP/s)\n", custom_time, gflops);
+    printf("cuBLAS implementation: %.3f ms (%.2f GFLOP/s)\n", cublas_time, cublas_gflops);
     printf("Performance ratio (cuBLAS/custom): %.2fx\n", custom_time/cublas_time);
     
     // Verify results
@@ -162,10 +178,10 @@ void benchmark(int M, int N, int K, int num_iterations = 10) {
     }
     
     // Cleanup
-    free(h_A);
-    free(h_B);
-    free(h_C);
-    free(h_C_cublas);
+    delete[] h_A;
+    delete[] h_B;
+    delete[] h_C;
+    delete[] h_C_cublas;
     cudaFree(d_A);
     cudaFree(d_B);
     cudaFree(d_C);
