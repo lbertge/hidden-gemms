@@ -5,12 +5,16 @@
 #include <assert.h>
 #include <random>
 
-// Block tiling parameters
-
 // Kernel definition with template parameters
 #define CEIL_DIV(M, N) (((M) + (N)-1) / (N))
 
-template <int BM, int BN, int BK, int TM>
+// Block tiling parameters
+const int BM = 128;
+const int BN = 128;
+const int BK = 1;
+const int TM = 12
+
+template <const int BM, const int BN, const int BK, const int TM>
 __global__ void sgemm1DBlocktiling(int M, int N, int K, float alpha,
                                    const float *A, const float *B, float beta,
                                    float *C) {
@@ -28,12 +32,12 @@ __global__ void sgemm1DBlocktiling(int M, int N, int K, float alpha,
   const int threadRow = threadIdx.x / BN;
 
   // allocate space for the current blocktile in SMEM
-  __shared__ float As[BM * BK];
-  __shared__ float Bs[BK * BN];
+  __shared__ float As[BM][BK];
+  __shared__ float Bs[BK][BN];
 
   // Move blocktile to beginning of A's row and B's column
-  A += cRow * BM * K;
-  B += cCol * BN;
+  // A += cRow * BM * K;
+  // B += cCol * BN;
   C += cRow * BM * N + cCol * BN;
 
   // todo: adjust this to each thread to load multiple entries and
@@ -51,22 +55,22 @@ __global__ void sgemm1DBlocktiling(int M, int N, int K, float alpha,
   // outer loop over block tiles
   for (uint bkIdx = 0; bkIdx < K; bkIdx += BK) {
     // populate the SMEM caches
-    As[innerRowA * BK + innerColA] = A[innerRowA * K + innerColA];
-    Bs[innerRowB * BN + innerColB] = B[innerRowB * N + innerColB];
+    As[innerRowA][innerColA] = A[cRow * BM * K + bkIdx + innerRowA * K + innerColA];
+    Bs[innerRowB][innerColB] = B[cCol * BN + bkIdx * N + innerRowB * N + innerColB];
     __syncthreads();
 
     // advance blocktile
-    A += BK;
-    B += BK * N;
+    // A += BK;
+    // B += BK * N;
 
     // calculate per-thread results
     for (uint dotIdx = 0; dotIdx < BK; ++dotIdx) {
       // we make the dotproduct loop the outside loop, which facilitates
       // reuse of the Bs entry, which we can cache in a tmp var.
-      float tmpB = Bs[dotIdx * BN + threadCol];
+      float tmpB = Bs[dotIdx][threadCol];
       for (uint resIdx = 0; resIdx < TM; ++resIdx) {
         threadResults[resIdx] +=
-            As[(threadRow * TM + resIdx) * BK + dotIdx] * tmpB;
+            As[threadRow * TM + resIdx][dotIdx] * tmpB;
       }
     }
     __syncthreads();
@@ -84,15 +88,10 @@ __global__ void sgemm1DBlocktiling(int M, int N, int K, float alpha,
 void blockTiledMatrixMul(float* A, float* B, float* C, 
                         int M, int N, int K,
                         float alpha, float beta) {
-  static const int BM_val = 64;
-  static const int BN_val = 64;
-  static const int BK_val = 8;
-  static const int TM_val = 8;
-  dim3 gridDim(CEIL_DIV(N, BN), CEIL_DIV(M, BM));
-  dim3 blockDim((BM * BN) / TM);
-  sgemm1DBlocktiling<BM, BN, BK, TM>
-      <<<gridDim, blockDim>>>(M, N, K, alpha, A, B, beta, C);
-
+    dim3 gridDim(CEIL_DIV(N, BN), CEIL_DIV(M, BM));
+    dim3 blockDim((BM * BN) / TM);
+    sgemm1DBlocktiling<BM, BN, BK, TM>
+        <<<gridDim, blockDim>>>(M, N, K, alpha, A, B, beta, C);
 }
 
 // Benchmark function
@@ -107,12 +106,13 @@ void benchmark(int M, int N, int K, int num_iterations = 10) {
     float *h_C = new float[M * N];
     float *h_C_cublas = new float[M * N];
     
-    // Initialize matrices with random values
-    std::mt19937 generator(42);  // Fixed seed for reproducibility
-    std::uniform_real_distribution<float> distribution(-1.0f, 1.0f);
+    // Initialize matrices
+    int some_seed = 759;
+    std::mt19937 generator(some_seed);
+    std::uniform_real_distribution<float> distribution(0.0f, 1.0f);
     for (int i = 0; i < M * K; i++) h_A[i] = distribution(generator);
     for (int i = 0; i < K * N; i++) h_B[i] = distribution(generator);
-    for (int i = 0; i < M * N; i++) h_C[i] = distribution(generator);
+    for (int i = 0; i < M * N; i++) h_C[i] = distribution(generator);  // Initialize C as well
     
     // Allocate device memory
     float *d_A, *d_B, *d_C, *d_C_cublas;
@@ -132,8 +132,8 @@ void benchmark(int M, int N, int K, int num_iterations = 10) {
     cublasCreate(&handle);
     
     // Constants for SGEMM
-    float alpha = 1.0f;
-    float beta = 0.0f;
+    float alpha = 0.5f;
+    float beta = 0.5f;
     
     // Warmup runs
     blockTiledMatrixMul(d_A, d_B, d_C, M, N, K, alpha, beta);
@@ -180,21 +180,23 @@ void benchmark(int M, int N, int K, int num_iterations = 10) {
     
     // Print results
     printf("Matrix dimensions: M=%d, N=%d, K=%d\n", M, N, K);
-    printf("Block tiling params: BM=%d, BN=%d, BK=%d, TM=%d\n", BM_val, BN_val, BK_val, TM_val);
+    printf("Block tiling params: BM=%d, BN=%d, BK=%d, TM=%d\n", BM, BN, BK, TM);
     printf("1D Block Tiling: %.3f ms (%.2f GFLOP/s)\n", custom_time, custom_gflops);
     printf("cuBLAS: %.3f ms (%.2f GFLOP/s)\n", cublas_time, cublas_gflops);
-    printf("Performance ratio (cuBLAS/custom): %.2fx\n", custom_time/cublas_time);
+    printf("Performance ratio (custom/cuBLAS): %.2fx\n", cublas_time/custom_time);
     
     // Verify results
     cudaMemcpy(h_C, d_C, size_C, cudaMemcpyDeviceToHost);
     cudaMemcpy(h_C_cublas, d_C_cublas, size_C, cudaMemcpyDeviceToHost);
-    
-    float max_error = 0.0f;
+
+    float epsilon = 0.1;
     for (int i = 0; i < M * N; i++) {
-        float error = fabs(h_C[i] - h_C_cublas[i]);
-        max_error = max(max_error, error);
+        float diff = fabs(h_C[i] - h_C_cublas[i]);
+        if (diff > epsilon) {
+          printf("Should be %5.4f, is %5.4f\n", h_C_cublas[i], h_C[i]);
+        }
+        assert(fabs(h_C[i] - h_C_cublas[i]) < epsilon);
     }
-    printf("Maximum error: %e\n", max_error);
     
     // Cleanup
     delete[] h_A;
