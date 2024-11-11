@@ -1,6 +1,43 @@
 ![hidden-gemm-title](./hidden-gemm-title.svg)
 
+
+# How to use 
+`make list` to see all possible targets. profiling should only be done on kernels in `profiling/`, to eliminate overhead when reading analysis results. 
+
+Profiling example: `ncu -o 1d_tiling_benchmark_profile --set full bin/1d_tiling_benchmark_profile`
+
+# FAQ 
+* Absolute error tolerance is 0.015, is this high? 
+In other matmul implementations I have found, this seems OK, relative error tolerance is much smaller (10e-4).
+
 # Benchmarks
+
+## Blocktiling 
+```
+Matrix dimensions: M=1024, N=1024, K=1024
+Block tiling params: BM=128, BN=128, BK=2, TM=64
+1D Block Tiling: 0.238 ms (9004.52 GFLOP/s)
+cuBLAS: 0.051 ms (42024.46 GFLOP/s)
+Performance ratio (custom/cuBLAS): 0.21x
+
+Matrix dimensions: M=2048, N=2048, K=2048
+Block tiling params: BM=128, BN=128, BK=2, TM=64
+1D Block Tiling: 0.690 ms (24888.32 GFLOP/s)
+cuBLAS: 0.276 ms (62253.12 GFLOP/s)
+Performance ratio (custom/cuBLAS): 0.40x
+
+Matrix dimensions: M=4096, N=4096, K=4096
+Block tiling params: BM=128, BN=128, BK=2, TM=64
+1D Block Tiling: 5.517 ms (24912.80 GFLOP/s)
+cuBLAS: 2.443 ms (56254.55 GFLOP/s)
+Performance ratio (custom/cuBLAS): 0.44x
+
+Matrix dimensions: M=8192, N=8192, K=8192
+Block tiling params: BM=128, BN=128, BK=2, TM=64
+1D Block Tiling: 43.408 ms (25329.42 GFLOP/s)
+cuBLAS: 19.282 ms (57024.14 GFLOP/s)
+Performance ratio (custom/cuBLAS): 0.44x
+```
 
 ## Tiling 
 ```
