@@ -9,15 +9,15 @@
 #define CEIL_DIV(M, N) (((M) + (N)-1) / (N))
 
 // Block tiling parameters
-const int BM = 128;
-const int BN = 128;
-const int BK = 1;
-const int TM = 12
+const int BM = 64;
+const int BN = 64;
+const int BK = 8;
+const int TM = 8;
 
 template <const int BM, const int BN, const int BK, const int TM>
-__global__ void sgemm1DBlocktiling(int M, int N, int K, float alpha,
-                                   const float *A, const float *B, float beta,
-                                   float *C) {
+__global__ void sgemm1DBlocktiling(const float *A, const float *B, float *C,
+                                   int M, int N, int K, float alpha, float beta
+                                   ) {
   // If we flip x and y here we get ~30% less performance for large matrices.
   // The current, 30% faster configuration ensures that blocks with sequential
   // blockIDs access columns of B sequentially, while sharing the same row of A.
@@ -27,9 +27,8 @@ __global__ void sgemm1DBlocktiling(int M, int N, int K, float alpha,
   const uint cRow = blockIdx.y;
   const uint cCol = blockIdx.x;
 
-  // each warp will calculate 32*TM elements, with 32 being the columnar dim.
-  const int threadCol = threadIdx.x % BN;
-  const int threadRow = threadIdx.x / BN;
+  const int threadCol = threadIdx.x;
+  const int threadRow = threadIdx.y;
 
   // allocate space for the current blocktile in SMEM
   __shared__ float As[BM][BK];
@@ -42,12 +41,12 @@ __global__ void sgemm1DBlocktiling(int M, int N, int K, float alpha,
 
   // todo: adjust this to each thread to load multiple entries and
   // better exploit the cache sizes
-  assert(BM * BK == blockDim.x);
-  assert(BN * BK == blockDim.x);
+  // assert(BM * BK == blockDim.x);
+  // assert(BN * BK == blockDim.x);
   const uint innerColA = threadIdx.x % BK; // warp-level GMEM coalescing
-  const uint innerRowA = threadIdx.x / BK;
-  const uint innerColB = threadIdx.x % BN; // warp-level GMEM coalescing
-  const uint innerRowB = threadIdx.x / BN;
+  const uint innerRowA = (threadIdx.y * TM) + (threadIdx.x / BK);
+  const uint innerColB = threadIdx.x; // warp-level GMEM coalescing
+  const uint innerRowB = threadIdx.y;
 
   // allocate thread-local cache for results in registerfile
   float threadResults[TM] = {0.0};
@@ -89,9 +88,9 @@ void blockTiledMatrixMul(float* A, float* B, float* C,
                         int M, int N, int K,
                         float alpha, float beta) {
     dim3 gridDim(CEIL_DIV(N, BN), CEIL_DIV(M, BM));
-    dim3 blockDim((BM * BN) / TM);
+    dim3 blockDim(BN, BM / TM);
     sgemm1DBlocktiling<BM, BN, BK, TM>
-        <<<gridDim, blockDim>>>(M, N, K, alpha, A, B, beta, C);
+        <<<gridDim, blockDim>>>(A, B, C, M, N, K, alpha, beta);
 }
 
 // Benchmark function
