@@ -12,7 +12,9 @@ In other matmul implementations I have found, this seems OK, relative error tole
 
 # Benchmarks
 
+# The following benchmarks run on an RTX 4090
 ## Blocktiling 
+
 ```
 Matrix dimensions: M=1024, N=1024, K=1024
 Block tiling params: BM=128, BN=128, BK=2, TM=64
