@@ -6,6 +6,9 @@
 
 Profiling example: `ncu -o 1d_tiling_benchmark_profile --set full bin/1d_tiling_benchmark_profile`
 
+# Link to Google Colab
+[Colab](https://colab.research.google.com/drive/1gY_1YTJfzav39bYDKOzQGirEIMxiVhbo?usp=sharing)
+
 # FAQ 
 * Absolute error tolerance is 0.015, is this high? 
 In other matmul implementations I have found, this seems OK, relative error tolerance is much smaller (10e-4).
