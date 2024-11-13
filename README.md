@@ -7,7 +7,7 @@
 Profiling example: `ncu -o 1d_tiling_benchmark_profile --set full bin/1d_tiling_benchmark_profile`
 
 # Link to Google Colab
-[Colab](https://colab.research.google.com/drive/1gY_1YTJfzav39bYDKOzQGirEIMxiVhbo?usp=sharing)
+[Colab](https://colab.research.google.com/drive/15cw6D4iKajNbB4w4P2kj0t1y6SwOJ9dR?usp=sharing)
 
 # FAQ 
 * Absolute error tolerance is 0.015, is this high? 
