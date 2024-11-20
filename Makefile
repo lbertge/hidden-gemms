@@ -23,7 +23,8 @@ PROFILING_EXECUTABLES = $(PROFILINGS:$(PROFILING_DIR)/%.cu=$(BIN_DIR)/%)
 4090 = -gencode arch=compute_86,code=sm_86
 ARCH = $(4090)
 
-CFLAGS = $(ARCH) -Xcompiler -O3 -Xcompiler -Wall -Xptxas -O3 -std=c++17
+# CFLAGS = $(ARCH) -Xcompiler -O3 -Xcompiler -Wall -Xptxas -O3 -std=c++17
+CFLAGS = -Xcompiler -O3 -Xcompiler -Wall -Xptxas -O3 -std=c++17
 
 # Library flags (e.g., cuBLAS)
 LIBS = -lcublas
