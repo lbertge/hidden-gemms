@@ -1,27 +1,35 @@
-# Compiler settings
 NVCC = nvcc
-CFLAGS = -O3  # Adjust sm_XX based on your GPU architecture
-CUDA_PATH = /usr/local/cuda  # Adjust if your CUDA installation is elsewhere
+CUDA_PATH = /usr/local/cuda  # Adjust based on your system
 
 # Directories
-SRC_DIR = kernels
+KERNELS_DIR = kernels
+BENCH_DIR = benchmark
 PROFILING_DIR = profiling
 BUILD_DIR = build
 BIN_DIR = bin
+UTILS_DIR = utils
 
 # Find all .cu files in the source and profiling directories
-SOURCES = $(wildcard $(SRC_DIR)/*.cu)
-PROFILING_SOURCES = $(wildcard $(PROFILING_DIR)/*.cu)
+KERNELS = $(wildcard $(KERNELS_DIR)/*.cu)
+BENCHS = $(wildcard $(BENCH_DIR)/*.cu)
+PROFILINGS = $(wildcard $(PROFILING_DIR)/*.cu)
 
 # Create target executable names from source files
-EXECUTABLES = $(SOURCES:$(SRC_DIR)/%.cu=$(BIN_DIR)/%)
-PROFILING_EXECUTABLES = $(PROFILING_SOURCES:$(PROFILING_DIR)/%.cu=$(BIN_DIR)/%)
+BENCH_EXECUTABLES = $(BENCHS:$(BENCH_DIR)/%.cu=$(BIN_DIR)/%)
+PROFILING_EXECUTABLES = $(PROFILINGS:$(PROFILING_DIR)/%.cu=$(BIN_DIR)/%)
 
-# Add cuBLAS library flags
+# Compiler flags
+2070 = -gencode arch=compute_75,code=sm_75
+4090 = -gencode arch=compute_86,code=sm_86
+ARCH = $(4090)
+
+CFLAGS = $(ARCH) -Xcompiler -O3 -Xcompiler -Wall -Xptxas -O3 -std=c++17
+
+# Library flags (e.g., cuBLAS)
 LIBS = -lcublas
 
 # Default target
-all: setup $(EXECUTABLES) $(PROFILING_EXECUTABLES)
+all: setup $(BENCH_EXECUTABLES) $(PROFILING_EXECUTABLES)
 
 # Create build and bin directories
 setup:
@@ -29,11 +37,15 @@ setup:
 	@mkdir -p $(BIN_DIR)
 
 # Compile rule for regular .cu files
-$(BIN_DIR)/%: $(SRC_DIR)/%.cu
-	$(NVCC) $(CFLAGS) $< $(LIBS) -o $@
+$(BIN_DIR)/%: $(BENCH_DIR)/%.cu $(KERNELS)
+	$(NVCC) $(CFLAGS) $< $(KERNELS) $(LIBS) -o $@
 
 # Compile rule for profiling .cu files
-$(BIN_DIR)/%: $(PROFILING_DIR)/%.cu
+$(BIN_DIR)/%: $(PROFILING_DIR)/%.cu $(KERNELS)
+	$(NVCC) $(CFLAGS) $< $(KERNELS) $(LIBS) -o $@
+
+# Compile rule for utilities
+$(BIN_DIR)/%: $(UTILS_DIR)/%.cu
 	$(NVCC) $(CFLAGS) $< $(LIBS) -o $@
 
 # Clean build files
@@ -44,13 +56,10 @@ clean:
 # Print available targets
 list:
 	@echo "Available targets:"
-	@echo $(EXECUTABLES) $(PROFILING_EXECUTABLES) | tr ' ' '\n' | sed 's/^/- /'
+	@echo $(BENCH_EXECUTABLES) $(PROFILING_EXECUTABLES) | tr ' ' '\n' | sed 's/^/- /'
 
-# Add device_info to utilities
-device_info: utils/device_info.cu
-	$(NVCC) $(NVCC_FLAGS) -o bin/device_info utils/device_info.cu $(LIBS)
+# Compile device_info utility
+device_info: $(UTILS_DIR)/device_info.cu
+	$(NVCC) $(CFLAGS) $< $(LIBS) -o $(BIN_DIR)/device_info
 
-# Add device_info to the all target
-all: gemm device_info
-
-.PHONY: all setup clean list 
+.PHONY: all setup clean list device_info

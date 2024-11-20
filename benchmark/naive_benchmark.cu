@@ -1,42 +1,10 @@
+#include "../kernels/native.cuh"
 #include <cuda_runtime.h>
 #include <cublas_v2.h>
 #include <stdio.h>
 #include <chrono>
 #include <assert.h>
 #include <random>
-
-// Tile size for shared memory
-#define TILE_WIDTH 32
-
-// Naive kernel implementation
-__global__ void naiveMatrixMulKernel(float* A, float* B, float* C, 
-                                    int M, int N, int K,
-                                    float alpha, float beta) {
-    int row = blockIdx.y * blockDim.y + threadIdx.y;
-    int col = blockIdx.x * blockDim.x + threadIdx.x;
-    // const int row = blockIdx.x * TILE_WIDTH + (threadIdx.x / TILE_WIDTH);
-    // const int col = blockIdx.y * TILE_WIDTH + (threadIdx.x % TILE_WIDTH);
-
-    
-    if (row < M && col < N) {
-        float sum = 0.0f;
-        for (int k = 0; k < K; k++) {
-            sum += A[row * K + k] * B[k * N + col];
-        }
-        C[row * N + col] = alpha * sum + beta * C[row * N + col];
-    }
-}
-
-// Naive wrapper function
-void naiveMatrixMul(float* A, float* B, float* C, 
-                    int M, int N, int K,
-                    float alpha, float beta) {
-    dim3 blockDim(32, 32);
-    dim3 gridDim((N + blockDim.x - 1) / blockDim.x, 
-                 (M + blockDim.y - 1) / blockDim.y);
-    
-    naiveMatrixMulKernel<<<gridDim, blockDim>>>(A, B, C, M, N, K, alpha, beta);
-}
 
 // Benchmark function
 void benchmark(int M, int N, int K, int num_iterations = 10) {

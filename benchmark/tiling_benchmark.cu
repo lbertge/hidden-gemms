@@ -1,80 +1,10 @@
+#include "../kernels/tiling.cuh"
 #include <cuda_runtime.h>
 #include <cublas_v2.h>
 #include <stdio.h>
 #include <chrono>
 #include <assert.h>
 #include <random>
-
-// Tile size for shared memory
-#define TILE_WIDTH 32
-
-// CUDA kernel for tiled matrix multiplication matching SGEMM
-__global__ void tiledMatrixMulKernel(float* A, float* B, float* C, 
-                                    int M, int N, int K,
-                                    float alpha, float beta) {
-    __shared__ float As[TILE_WIDTH][TILE_WIDTH];
-    __shared__ float Bs[TILE_WIDTH][TILE_WIDTH];
-
-    // first, figure out which output tile we are working on 
-    int cRow = blockIdx.x; 
-    int cCol = blockIdx.y; 
-
-    // compute which element in the output tile this thread is responsible for
-    int tRow = threadIdx.y; 
-    int tCol = threadIdx.x; 
-
-    // the actual row & col that we're accessing in this thread
-    int row = cRow * TILE_WIDTH + tRow; 
-    int col = cCol * TILE_WIDTH + tCol; 
-
-    float sum = 0.0f; 
-
-    // loop over all the tiles that contribute to this output tile
-    for (int t = 0; t < (K + TILE_WIDTH - 1) / TILE_WIDTH; t++) {
-        // load the correct elements for this tile into shared memory
-        // this is for A
-        if (row < M && t * TILE_WIDTH + tCol < K) {
-            As[tRow][tCol] = A[row * K + t * TILE_WIDTH + tCol];
-        } else {
-            As[tRow][tCol] = 0.0f; 
-        }
-
-        // this is for B
-        if (t * TILE_WIDTH + tRow < K && col < N) {
-            Bs[tRow][tCol] = B[(t * TILE_WIDTH + tRow) * N + col];
-        } else {
-            Bs[tRow][tCol] = 0.0f; 
-        }
-
-        // wait for all threads to finish loading before proceeding
-        __syncthreads(); 
-
-        // compute the dot product for the current tile
-        for (int k = 0; k < TILE_WIDTH; k++) {
-            sum += As[tRow][k] * Bs[k][tCol];
-        }
-
-        // wait for all threads to finish computing the dot product before proceeding
-        __syncthreads(); 
-    }
-
-    // write the computed value to the correct position in the output tile
-    if (row < M && col < N) {
-        C[row * N + col] = alpha * sum + beta * C[row * N + col];
-    }
-
-}
-
-// Updated wrapper function
-void tiledMatrixMul(float* A, float* B, float* C, 
-                    int M, int N, int K,
-                    float alpha, float beta) {
-    dim3 dimBlock(TILE_WIDTH, TILE_WIDTH);
-    dim3 dimGrid((N + TILE_WIDTH - 1) / TILE_WIDTH, 
-                 (M + TILE_WIDTH - 1) / TILE_WIDTH);
-    
-    tiledMatrixMulKernel<<<dimGrid, dimBlock>>>(A, B, C, M, N, K, alpha, beta);
-}
 
 // Updated benchmark function
 void benchmark(int M, int N, int K, int num_iterations = 10) {
@@ -118,7 +48,7 @@ void benchmark(int M, int N, int K, int num_iterations = 10) {
     float beta = 0.5f;
     
     // Warmup
-    tiledMatrixMul(d_A, d_B, d_C, M, N, K, alpha, beta);
+    tilingMatrixMul(d_A, d_B, d_C, M, N, K, alpha, beta);
     cublasSgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N,
                 N, M, K, &alpha,
                 d_B, N, d_A, K, &beta,
@@ -131,7 +61,7 @@ void benchmark(int M, int N, int K, int num_iterations = 10) {
     
     cudaEventRecord(start);
     for (int i = 0; i < num_iterations; i++) {
-        tiledMatrixMul(d_A, d_B, d_C, M, N, K, alpha, beta);
+        tilingMatrixMul(d_A, d_B, d_C, M, N, K, alpha, beta);
     }
     cudaEventRecord(stop);
     cudaEventSynchronize(stop);
