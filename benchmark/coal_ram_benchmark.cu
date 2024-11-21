@@ -59,15 +59,15 @@ void benchmark(int M, int N, int K, int num_iterations = 10) {
     cudaEventCreate(&start);
     cudaEventCreate(&stop);
     
-    float naive_time;
+    float coal_ram_time;
     cudaEventRecord(start);
     for (int i = 0; i < num_iterations; i++) {
         coalRamMatrixMul(d_A, d_B, d_C, M, N, K, alpha, beta);
     }
     cudaEventRecord(stop);
     cudaEventSynchronize(stop);
-    cudaEventElapsedTime(&naive_time, start, stop);
-    naive_time /= num_iterations;
+    cudaEventElapsedTime(&coal_ram_time, start, stop);
+    coal_ram_time /= num_iterations;
     
     // Benchmark cuBLAS
     cudaEventRecord(start);
@@ -86,15 +86,15 @@ void benchmark(int M, int N, int K, int num_iterations = 10) {
     
     // Calculate GFLOPS
     double operations = 2.0 * M * N * K;  // multiply-adds
-    double naive_gflops = (operations * 1e-9) / (naive_time * 1e-3);
+    double naive_gflops = (operations * 1e-9) / (coal_ram_time * 1e-3);
     double cublas_gflops = (operations * 1e-9) / (cublas_time * 1e-3);
     
     // Print results
     printf("Matrix dimensions: M=%d, N=%d, K=%d\n", M, N, K);
-    printf("Coal Ram implementation: %.3f ms (%.2f GFLOP/s)\n", naive_time, naive_gflops);
+    printf("Coal Ram implementation: %.3f ms (%.2f GFLOP/s)\n", coal_ram_time, naive_gflops);
     printf("cuBLAS implementation: %.3f ms (%.2f GFLOP/s)\n", cublas_time, cublas_gflops);
     printf("Performance ratio:\n");
-    printf("  cuBLAS/coal_ram: %.2fx\n", naive_time/cublas_time);
+    printf("  cuBLAS/coal_ram: %.2fx\n", coal_ram_time/cublas_time);
     
     // Verify results
     cudaMemcpy(h_C, d_C, size_C, cudaMemcpyDeviceToHost);
