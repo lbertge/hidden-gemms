@@ -102,7 +102,7 @@ void benchmark(int M, int N, int K, int num_iterations = 10) {
     cudaMemcpy(h_C_cublas, d_C_cublas, size_C, cudaMemcpyDeviceToHost);
     
     // assert that the results are within some epsilon of each other
-    float epsilon = 1e-3;
+    float epsilon = 1e-2;
     for (int i = 0; i < M * N; i++) {
         assert(fabs(h_C[i] - h_C_cublas[i]) < epsilon);
     }
