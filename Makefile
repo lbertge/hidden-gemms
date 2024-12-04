@@ -45,7 +45,7 @@ $(BIN_DIR)/%: $(PROFILING_DIR)/%.cu $(SRC)
 	$(NVCC) $(CFLAGS) $< $(SRC) $(LIBS) -o $@
 
 # Print device information
-$(BIN_DIR)/%: $(UTILS)/%.cu
+$(BIN_DIR)/device_info: $(UTILS)/device_info.cu
 	$(NVCC) $(CFLAGS) $< $(LIBS) -o $@
 
 # Clean build files
@@ -57,4 +57,4 @@ list:
 	@echo "Available targets:"
 	@echo $(BENCH_EXECUTABLES) $(PROFILING_EXECUTABLES) | tr ' ' '\n' | sed 's/^/- /'
 
-.PHONY: all setup clean list device_info
+.PHONY: all setup clean list
