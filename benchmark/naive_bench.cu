@@ -48,7 +48,7 @@ void benchmark(int M, int N, int K, int num_iterations = 10) {
     float beta = 0.5f;
     
     // Warmup
-    native_host(d_A, d_B, d_C, M, N, K, alpha, beta);
+    naive_host(d_A, d_B, d_C, M, N, K, alpha, beta);
     cublas_host(d_A, d_B, d_C_cublas, M, N, K, alpha, beta, handle);
     
     // Benchmark naive implementation
@@ -59,7 +59,7 @@ void benchmark(int M, int N, int K, int num_iterations = 10) {
     float naive_time;
     cudaEventRecord(start);
     for (int i = 0; i < num_iterations; i++) {
-        native_host(d_A, d_B, d_C, M, N, K, alpha, beta);
+        naive_host(d_A, d_B, d_C, M, N, K, alpha, beta);
     }
     cudaEventRecord(stop);
     cudaEventSynchronize(stop);

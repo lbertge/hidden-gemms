@@ -5,11 +5,11 @@
 #define CEIL(M, N) (((M) + (N) - 1) / (N))
 
 // Naive host
-void native_host(float* A, float* B, float* C, int M, int N, int K, float alpha, float beta) {
+void naive_host(float* A, float* B, float* C, int M, int N, int K, float alpha, float beta) {
     dim3 gridDim(CEIL(M, TILE_WIDTH), CEIL(N, TILE_WIDTH));
     dim3 blockDim(TILE_WIDTH, TILE_WIDTH);
     
-    native_kernel<<<gridDim, blockDim>>>(A, B, C, M, N, K, alpha, beta);
+    naive_kernel<<<gridDim, blockDim>>>(A, B, C, M, N, K, alpha, beta);
 }
 
 // CoalRam host

@@ -1,7 +1,7 @@
 #pragma once
 
 // Naive kernel implementation
-__global__ void native_kernel(float* A, float* B, float* C, int M, int N, int K, float alpha, float beta) {
+__global__ void naive_kernel(float* A, float* B, float* C, int M, int N, int K, float alpha, float beta) {
     int row = blockIdx.x * blockDim.x + threadIdx.x;
     int col = blockIdx.y * blockDim.y + threadIdx.y;
 

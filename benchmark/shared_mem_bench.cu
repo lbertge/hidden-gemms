@@ -51,7 +51,7 @@ void benchmark(int M, int N, int K, int num_iterations = 10) {
     shared_memory_host(d_A, d_B, d_C, M, N, K, alpha, beta);
     cublas_host(d_A, d_B, d_C_cublas, M, N, K, alpha, beta, handle);
     
-    // Benchmark custom implementation
+    // Benchmark shared memory implementation
     cudaEvent_t start, stop;
     cudaEventCreate(&start);
     cudaEventCreate(&stop);

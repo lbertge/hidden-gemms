@@ -48,23 +48,23 @@ void benchmark(int M, int N, int K, int num_iterations = 10) {
     float beta = 0.5f;
     
     // Warmup
-    coal_host(d_A, d_B, d_C, M, N, K, alpha, beta);
+    vectorized_host(d_A, d_B, d_C, M, N, K, alpha, beta);
     cublas_host(d_A, d_B, d_C_cublas, M, N, K, alpha, beta, handle);
     
-    // Benchmark coal_mem implementation
+    // Benchmark vectorize implementation
     cudaEvent_t start, stop;
     cudaEventCreate(&start);
     cudaEventCreate(&stop);
     
-    float coal_ram_time;
+    float vectorize_time;
     cudaEventRecord(start);
     for (int i = 0; i < num_iterations; i++) {
-        coal_host(d_A, d_B, d_C, M, N, K, alpha, beta);
+        vectorized_host(d_A, d_B, d_C, M, N, K, alpha, beta);
     }
     cudaEventRecord(stop);
     cudaEventSynchronize(stop);
-    cudaEventElapsedTime(&coal_ram_time, start, stop);
-    coal_ram_time /= num_iterations;
+    cudaEventElapsedTime(&vectorize_time, start, stop);
+    vectorize_time /= num_iterations;
     
     // Benchmark cuBLAS
     cudaEventRecord(start);
@@ -80,15 +80,15 @@ void benchmark(int M, int N, int K, int num_iterations = 10) {
     
     // Calculate GFLOPS
     double operations = 2.0 * M * N * K;  // multiply-adds
-    double coal_gflops = (operations * 1e-9) / (coal_ram_time * 1e-3);
+    double vectorize_gflops = (operations * 1e-9) / (vectorize_time * 1e-3);
     double cublas_gflops = (operations * 1e-9) / (cublas_time * 1e-3);
     
     // Print results
     printf("Matrix dimensions: M=%d, N=%d, K=%d\n", M, N, K);
-    printf("Coal Ram implementation: %.3f ms (%.2f GFLOP/s)\n", coal_ram_time, coal_gflops);
+    printf("Vectorize implementation: %.3f ms (%.2f GFLOP/s)\n", vectorize_time, vectorize_gflops);
     printf("cuBLAS implementation: %.3f ms (%.2f GFLOP/s)\n", cublas_time, cublas_gflops);
     printf("Performance ratio:\n");
-    printf("  cuBLAS/coal_ram: %.2fx\n", coal_ram_time/cublas_time);
+    printf("  cuBLAS/vectorize: %.2fx\n", vectorize_time/cublas_time);
     
     // Verify results
     cudaMemcpy(h_C, d_C, size_C, cudaMemcpyDeviceToHost);

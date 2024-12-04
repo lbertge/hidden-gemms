@@ -2,7 +2,7 @@
 
 #include <cublas_v2.h>
 
-void native_host(float* A, float* B, float* C, int M, int N, int K, float alpha, float beta);
+void naive_host(float* A, float* B, float* C, int M, int N, int K, float alpha, float beta);
 
 void coal_host(float* A, float* B, float* C, int M, int N, int K, float alpha, float beta);
 
