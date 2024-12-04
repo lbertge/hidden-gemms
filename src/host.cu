@@ -1,9 +1,4 @@
-#include "kernels/kernel1.cuh"
-#include "kernels/kernel2.cuh"
-#include "kernels/kernel3.cuh"
-#include "kernels/kernel4.cuh"
-#include "kernels/kernel5.cuh"
-#include "kernels/kernel6.cuh"
+#include "kernels.cuh"
 
 #define TILE_WIDTH 32
 #define CEIL(M, N) (((M) + (N) - 1) / (N))

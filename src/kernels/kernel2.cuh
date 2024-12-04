@@ -1,5 +1,3 @@
-#pragma once
-
 #define TILE_WIDTH 32
 
 // CoalRam kernel implementation
