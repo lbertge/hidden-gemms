@@ -45,6 +45,12 @@ void block_tiling_1d_host(float* A, float* B, float* C, int M, int N, int K, flo
 
 
 // Vectorized host
+void vectorized_host(float* A, float* B, float* C, int M, int N, int K, float alpha, float beta) {
+    dim3 gridDim(CEIL(M, TILE_WIDTH), CEIL(N, TILE_WIDTH));
+    dim3 blockDim(TILE_WIDTH, TILE_WIDTH);
+    
+    vectorized_kernel<<<gridDim, blockDim>>>(A, B, C, M, N, K, alpha, beta);
+}
 
 
 // Double Buffered host
