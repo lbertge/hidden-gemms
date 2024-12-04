@@ -1,4 +1,5 @@
 #include "kernels.cuh"
+#include <cublas_v2.h>
 
 #define TILE_WIDTH 32
 #define CEIL(M, N) (((M) + (N) - 1) / (N))
@@ -38,4 +39,18 @@ void block_tiling_1d_host(float* A, float* B, float* C, int M, int N, int K, flo
     dim3 gridDim(CEIL(N, BN), CEIL(M, BM));
     dim3 blockDim(BN, BM / TM);
     block_tiling_1d_kernel<BM, BN, BK, TM><<<gridDim, blockDim>>>(A, B, C, M, N, K, alpha, beta);
+}
+
+// Tiled Matrix Multiplication 2D host
+
+
+// Vectorized host
+
+
+// Double Buffered host
+
+
+// cuBLAS host
+void cublas_host(float* A, float* B, float* C, int M, int N, int K, float alpha, float beta, cublasHandle_t handle) {
+    cublasSgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, N, M, K, &alpha, B, N, A, K, &beta, C, N);
 }

@@ -6,3 +6,4 @@
 #include "kernels/kernel4.cuh"
 #include "kernels/kernel5.cuh"
 #include "kernels/kernel6.cuh"
+#include "kernels/kernel7.cuh"

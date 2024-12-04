@@ -1,3 +1,3 @@
 #pragma once
 
-// Double Buffering
+// Vectorization

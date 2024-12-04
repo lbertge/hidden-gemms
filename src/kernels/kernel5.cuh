@@ -1,3 +1,3 @@
 #pragma once
 
-// Vectorization
+// 2D block tiling kernel
