@@ -1,7 +1,7 @@
 #define TILE_WIDTH 32
-#define CEIL(M, N) (((M) + (N) - 1) / (N))
 
-__global__ void tilingMatrixMulKernel(float* A, float* B, float* C, int M, int N, int K, float alpha, float beta) {
+// Shared Memory Kernel Implementation
+__global__ void shared_memory_kernel(float* A, float* B, float* C, int M, int N, int K, float alpha, float beta) {
     __shared__ float As[TILE_WIDTH][TILE_WIDTH];
     __shared__ float Bs[TILE_WIDTH][TILE_WIDTH];
 
@@ -41,12 +41,4 @@ __global__ void tilingMatrixMulKernel(float* A, float* B, float* C, int M, int N
 
     int idx = N * TILE_WIDTH * cRow + TILE_WIDTH * cCol;
     C[idx + N * ty + tx] = alpha * sum + beta * C[idx + N * ty + tx];
-
-}
-
-void tilingMatrixMul(float* A, float* B, float* C, int M, int N, int K, float alpha, float beta) {
-    dim3 dimBlock(TILE_WIDTH, TILE_WIDTH);
-    dim3 dimGrid(CEIL(M, TILE_WIDTH), CEIL(N, TILE_WIDTH));
-    
-    tilingMatrixMulKernel<<<dimGrid, dimBlock>>>(A, B, C, M, N, K, alpha, beta);
 }

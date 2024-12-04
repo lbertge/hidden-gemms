@@ -1,4 +1,4 @@
-#include "../kernels/tiling.cuh"
+#include "../src/host.cu"
 #include <cuda_runtime.h>
 #include <cublas_v2.h>
 #include <stdio.h>
@@ -42,7 +42,7 @@ int main() {
     float beta = 0.5f;
     
     // Single kernel execution for profiling
-    tilingMatrixMul(d_A, d_B, d_C, M, N, K, alpha, beta);
+    shared_memory_host(d_A, d_B, d_C, M, N, K, alpha, beta);
     
     // Cleanup
     delete[] h_A;

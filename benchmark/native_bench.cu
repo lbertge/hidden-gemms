@@ -1,4 +1,4 @@
-#include "../kernels/native.cuh"
+#include "../src/host.cu"
 #include <cuda_runtime.h>
 #include <cublas_v2.h>
 #include <stdio.h>
@@ -48,7 +48,7 @@ void benchmark(int M, int N, int K, int num_iterations = 10) {
     float beta = 0.5f;
     
     // Warmup
-    naiveMatrixMul(d_A, d_B, d_C, M, N, K, alpha, beta);
+    native_host(d_A, d_B, d_C, M, N, K, alpha, beta);
     cublasSgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N,
                 N, M, K, &alpha,
                 d_B, N, d_A, K, &beta,
@@ -62,7 +62,7 @@ void benchmark(int M, int N, int K, int num_iterations = 10) {
     float naive_time;
     cudaEventRecord(start);
     for (int i = 0; i < num_iterations; i++) {
-        naiveMatrixMul(d_A, d_B, d_C, M, N, K, alpha, beta);
+        native_host(d_A, d_B, d_C, M, N, K, alpha, beta);
     }
     cudaEventRecord(stop);
     cudaEventSynchronize(stop);
