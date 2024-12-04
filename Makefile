@@ -16,6 +16,7 @@ UTILS = $(wildcard $(SRC_DIR)/utils/*.cu)
 # Create target executable names from source files
 BENCH_EXECUTABLES = $(BENCHS:$(BENCH_DIR)/%.cu=$(BIN_DIR)/%)
 PROFILING_EXECUTABLES = $(PROFILINGS:$(PROFILING_DIR)/%.cu=$(BIN_DIR)/%)
+UTILS_EXECUTABLES = $(UTILS:$(SRC_DIR)/utils/%.cu=$(BIN_DIR)/%)
 
 # Compiler flags
 2070 = -gencode arch=compute_75,code=sm_75
@@ -29,7 +30,7 @@ CFLAGS = -Xcompiler -O3 -Xcompiler -Wall -Xptxas -O3 -std=c++17
 LIBS = -lcublas
 
 # Default target
-all: setup $(BENCH_EXECUTABLES) $(PROFILING_EXECUTABLES)
+all: setup $(BENCH_EXECUTABLES) $(PROFILING_EXECUTABLES) $(UTILS_EXECUTABLES)
 
 # Create build and bin directories
 setup:
