@@ -11,6 +11,7 @@ BIN_DIR = bin
 SRC = $(wildcard $(SRC_DIR)/*.cu)
 BENCHS = $(wildcard $(BENCH_DIR)/*.cu)
 PROFILINGS = $(wildcard $(PROFILING_DIR)/*.cu)
+UTILS = $(wildcard $(SRC_DIR)/utils/*.cu)
 
 # Create target executable names from source files
 BENCH_EXECUTABLES = $(BENCHS:$(BENCH_DIR)/%.cu=$(BIN_DIR)/%)
@@ -42,6 +43,9 @@ $(BIN_DIR)/%: $(BENCH_DIR)/%.cu $(SRC)
 $(BIN_DIR)/%: $(PROFILING_DIR)/%.cu $(SRC)
 	$(NVCC) $(CFLAGS) $< $(SRC) $(LIBS) -o $@
 
+# Print device information
+$(BIN_DIR)/%: $(UTILS)/%.cu
+	$(NVCC) $(CFLAGS) $< $(LIBS) -o $@
 
 # Clean build files
 clean:
