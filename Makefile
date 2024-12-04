@@ -5,18 +5,19 @@ CUDA_PATH = /usr/local/cuda  # Adjust based on your system
 SRC_DIR = src
 BENCH_DIR = benchmark
 PROFILING_DIR = profiling
+UTILS_DIR = $(SRC_DIR)/utils
 BIN_DIR = bin
 
 # Find all .cu files in the source and profiling directories
 SRC = $(wildcard $(SRC_DIR)/*.cu)
 BENCHS = $(wildcard $(BENCH_DIR)/*.cu)
 PROFILINGS = $(wildcard $(PROFILING_DIR)/*.cu)
-UTILS = $(wildcard $(SRC_DIR)/utils/*.cu)
+UTILS = $(wildcard $(UTILS_DIR)/*.cu)
 
 # Create target executable names from source files
 BENCH_EXECUTABLES = $(BENCHS:$(BENCH_DIR)/%.cu=$(BIN_DIR)/%)
 PROFILING_EXECUTABLES = $(PROFILINGS:$(PROFILING_DIR)/%.cu=$(BIN_DIR)/%)
-UTILS_EXECUTABLES = $(UTILS:$(SRC_DIR)/utils/%.cu=$(BIN_DIR)/%)
+UTILS_EXECUTABLES = $(UTILS:$(UTILS_DIR)/%.cu=$(BIN_DIR)/%)
 
 # Compiler flags
 2070 = -gencode arch=compute_75,code=sm_75
@@ -36,6 +37,14 @@ all: setup $(BENCH_EXECUTABLES) $(PROFILING_EXECUTABLES) $(UTILS_EXECUTABLES)
 setup:
 	@mkdir -p $(BIN_DIR)
 
+# Compile rule for device_info explicitly
+$(BIN_DIR)/device_info: $(UTILS_DIR)/device_info.cu
+	$(NVCC) $(CFLAGS) $< $(LIBS) -o $@
+
+# General rule for compiling utils
+$(BIN_DIR)/%: $(UTILS_DIR)/%.cu
+	$(NVCC) $(CFLAGS) $< $(LIBS) -o $@
+
 # Compile rule for regular .cu files
 $(BIN_DIR)/%: $(BENCH_DIR)/%.cu $(SRC)
 	$(NVCC) $(CFLAGS) $< $(SRC) $(LIBS) -o $@
@@ -44,10 +53,6 @@ $(BIN_DIR)/%: $(BENCH_DIR)/%.cu $(SRC)
 $(BIN_DIR)/%: $(PROFILING_DIR)/%.cu $(SRC)
 	$(NVCC) $(CFLAGS) $< $(SRC) $(LIBS) -o $@
 
-# Print device information
-$(BIN_DIR)/device_info: $(UTILS)/device_info.cu
-	$(NVCC) $(CFLAGS) $< $(LIBS) -o $@
-
 # Clean build files
 clean:
 	rm -f $(BIN_DIR)/*
@@ -55,6 +60,6 @@ clean:
 # Print available targets
 list:
 	@echo "Available targets:"
-	@echo $(BENCH_EXECUTABLES) $(PROFILING_EXECUTABLES) | tr ' ' '\n' | sed 's/^/- /'
+	@echo $(BENCH_EXECUTABLES) $(PROFILING_EXECUTABLES) $(UTILS_EXECUTABLES) | tr ' ' '\n' | sed 's/^/- /'
 
 .PHONY: all setup clean list
