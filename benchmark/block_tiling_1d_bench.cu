@@ -1,10 +1,16 @@
-#include "../src/host.cu"
+#include "src/host.cuh"
 #include <cuda_runtime.h>
 #include <cublas_v2.h>
 #include <stdio.h>
 #include <chrono>
 #include <assert.h>
 #include <random>
+
+// Block tiling parameters
+const int BM = 64;
+const int BN = 64;
+const int BK = 8;
+const int TM = 8;
 
 // Benchmark function
 void benchmark(int M, int N, int K, int num_iterations = 10) {
