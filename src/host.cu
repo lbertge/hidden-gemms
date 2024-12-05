@@ -2,6 +2,7 @@
 #include <cublas_v2.h>
 #include <cmath> // For fabs
 #include <iostream>
+#include <random>
 
 #define TILE_WIDTH 32
 #define CEIL(M, N) (((M) + (N) - 1) / (N))
@@ -106,4 +107,349 @@ void double_buffered_host(float* A, float* B, float* C, int M, int N, int K, flo
 // cuBLAS host
 void cublas_host(float* A, float* B, float* C, int M, int N, int K, float alpha, float beta, cublasHandle_t handle) {
     cublasSgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, N, M, K, &alpha, B, N, A, K, &beta, C, N);
+}
+
+
+// Populate matrix
+void populate_matrix(float* h_A, float* h_B, float* h_C, int M, int N, int K) {
+    int some_seed = 759;
+    std::mt19937 generator(some_seed);
+    std::uniform_real_distribution<float> distribution(-10.0f, 10.0f);
+    for (int i = 0; i < M * K; i++) h_A[i] = distribution(generator);
+    for (int i = 0; i < K * N; i++) h_B[i] = distribution(generator);
+    for (int i = 0; i < M * N; i++) h_C[i] = distribution(generator);
+}
+
+
+// Naive benchmark
+void naive_benchmark(float* h_A, float* h_B, float* h_C, float* h_Output, int M, int N, int K, float alpha, float beta, int num_iterations, float* time) {
+    size_t size_A = M * K * sizeof(float);
+    size_t size_B = K * N * sizeof(float);
+    size_t size_C = M * N * sizeof(float);
+
+    float *d_A, *d_B, *d_C;
+    cudaMalloc(&d_A, size_A);
+    cudaMalloc(&d_B, size_B);
+    cudaMalloc(&d_C, size_C);
+
+    cudaMemcpy(d_A, h_A, size_A, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_B, h_B, size_B, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_C, h_C, size_C, cudaMemcpyHostToDevice);
+
+    // Warmup
+    naive_host(d_A, d_B, d_C, M, N, K, alpha, beta);
+
+    cudaEvent_t start, stop;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+
+    cudaEventRecord(start);
+    for (int i = 0; i < num_iterations; i++) {
+        naive_host(d_A, d_B, d_C, M, N, K, alpha, beta);
+    }
+    cudaEventRecord(stop);
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(time, start, stop);
+
+    cudaMemcpy(h_Output, d_C, size_C, cudaMemcpyDeviceToHost);
+
+    cudaFree(d_A);
+    cudaFree(d_B);
+    cudaFree(d_C);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(stop);
+}
+
+
+// CoalRam benchmark
+void coal_benchmark(float* h_A, float* h_B, float* h_C, float* h_Output, int M, int N, int K, float alpha, float beta, int num_iterations, float* time) {
+    size_t size_A = M * K * sizeof(float);
+    size_t size_B = K * N * sizeof(float);
+    size_t size_C = M * N * sizeof(float);
+
+    float *d_A, *d_B, *d_C;
+    cudaMalloc(&d_A, size_A);
+    cudaMalloc(&d_B, size_B);
+    cudaMalloc(&d_C, size_C);
+
+    cudaMemcpy(d_A, h_A, size_A, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_B, h_B, size_B, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_C, h_C, size_C, cudaMemcpyHostToDevice);
+
+    // Warmup
+    coal_host(d_A, d_B, d_C, M, N, K, alpha, beta);
+
+    cudaEvent_t start, stop;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+
+    cudaEventRecord(start);
+    for (int i = 0; i < num_iterations; i++) {
+        coal_host(d_A, d_B, d_C, M, N, K, alpha, beta);
+    }
+    cudaEventRecord(stop);
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(time, start, stop);
+
+    cudaMemcpy(h_Output, d_C, size_C, cudaMemcpyDeviceToHost);
+
+    cudaFree(d_A);
+    cudaFree(d_B);
+    cudaFree(d_C);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(stop);
+}
+
+
+// Shared Memory benchmark
+void shared_memory_benchmark(float* h_A, float* h_B, float* h_C, float* h_Output, int M, int N, int K, float alpha, float beta, int num_iterations, float* time) {
+    size_t size_A = M * K * sizeof(float);
+    size_t size_B = K * N * sizeof(float);
+    size_t size_C = M * N * sizeof(float);
+
+    float *d_A, *d_B, *d_C;
+    cudaMalloc(&d_A, size_A);
+    cudaMalloc(&d_B, size_B);
+    cudaMalloc(&d_C, size_C);
+
+    cudaMemcpy(d_A, h_A, size_A, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_B, h_B, size_B, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_C, h_C, size_C, cudaMemcpyHostToDevice);
+
+    // Warmup
+    shared_memory_host(d_A, d_B, d_C, M, N, K, alpha, beta);
+
+    cudaEvent_t start, stop;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+
+    cudaEventRecord(start);
+    for (int i = 0; i < num_iterations; i++) {
+        shared_memory_host(d_A, d_B, d_C, M, N, K, alpha, beta);
+    }
+    cudaEventRecord(stop);
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(time, start, stop);
+
+    cudaMemcpy(h_Output, d_C, size_C, cudaMemcpyDeviceToHost);
+
+    cudaFree(d_A);
+    cudaFree(d_B);
+    cudaFree(d_C);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(stop);
+}
+
+
+// Tiled Matrix Multiplication 1D benchmark
+void block_tiling_1d_benchmark(float* h_A, float* h_B, float* h_C, float* h_Output, int M, int N, int K, float alpha, float beta, int num_iterations, float* time) {
+    size_t size_A = M * K * sizeof(float);
+    size_t size_B = K * N * sizeof(float);
+    size_t size_C = M * N * sizeof(float);
+
+    float *d_A, *d_B, *d_C;
+    cudaMalloc(&d_A, size_A);
+    cudaMalloc(&d_B, size_B);
+    cudaMalloc(&d_C, size_C);
+
+    cudaMemcpy(d_A, h_A, size_A, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_B, h_B, size_B, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_C, h_C, size_C, cudaMemcpyHostToDevice);
+
+    // Warmup
+    block_tiling_1d_host(d_A, d_B, d_C, M, N, K, alpha, beta);
+
+    cudaEvent_t start, stop;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+
+    cudaEventRecord(start);
+    for (int i = 0; i < num_iterations; i++) {
+        block_tiling_1d_host(d_A, d_B, d_C, M, N, K, alpha, beta);
+    }
+    cudaEventRecord(stop);
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(time, start, stop);
+
+    cudaMemcpy(h_Output, d_C, size_C, cudaMemcpyDeviceToHost);
+
+    cudaFree(d_A);
+    cudaFree(d_B);
+    cudaFree(d_C);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(stop);
+}
+
+
+// Tiled Matrix Multiplication 2D benchmark
+void block_tiling_2d_benchmark(float* h_A, float* h_B, float* h_C, float* h_Output, int M, int N, int K, float alpha, float beta, int num_iterations, float* time) {
+    size_t size_A = M * K * sizeof(float);
+    size_t size_B = K * N * sizeof(float);
+    size_t size_C = M * N * sizeof(float);
+
+    float *d_A, *d_B, *d_C;
+    cudaMalloc(&d_A, size_A);
+    cudaMalloc(&d_B, size_B);
+    cudaMalloc(&d_C, size_C);
+
+    cudaMemcpy(d_A, h_A, size_A, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_B, h_B, size_B, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_C, h_C, size_C, cudaMemcpyHostToDevice);
+
+    // Warmup
+    block_tiling_2d_host(d_A, d_B, d_C, M, N, K, alpha, beta);
+
+    cudaEvent_t start, stop;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+
+    cudaEventRecord(start);
+    for (int i = 0; i < num_iterations; i++) {
+        block_tiling_2d_host(d_A, d_B, d_C, M, N, K, alpha, beta);
+    }
+    cudaEventRecord(stop);
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(time, start, stop);
+
+    cudaMemcpy(h_Output, d_C, size_C, cudaMemcpyDeviceToHost);
+
+    cudaFree(d_A);
+    cudaFree(d_B);
+    cudaFree(d_C);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(stop);
+}
+
+
+// Vectorized benchmark
+void vectorized_benchmark(float* h_A, float* h_B, float* h_C, float* h_Output, int M, int N, int K, float alpha, float beta, int num_iterations, float* time) {
+    size_t size_A = M * K * sizeof(float);
+    size_t size_B = K * N * sizeof(float);
+    size_t size_C = M * N * sizeof(float);
+
+    float *d_A, *d_B, *d_C;
+    cudaMalloc(&d_A, size_A);
+    cudaMalloc(&d_B, size_B);
+    cudaMalloc(&d_C, size_C);
+
+    cudaMemcpy(d_A, h_A, size_A, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_B, h_B, size_B, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_C, h_C, size_C, cudaMemcpyHostToDevice);
+
+    // Warmup
+    vectorized_host(d_A, d_B, d_C, M, N, K, alpha, beta);
+
+    cudaEvent_t start, stop;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+
+    cudaEventRecord(start);
+    for (int i = 0; i < num_iterations; i++) {
+        vectorized_host(d_A, d_B, d_C, M, N, K, alpha, beta);
+    }
+    cudaEventRecord(stop);
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(time, start, stop);
+
+    cudaMemcpy(h_Output, d_C, size_C, cudaMemcpyDeviceToHost);
+
+    cudaFree(d_A);
+    cudaFree(d_B);
+    cudaFree(d_C);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(stop);
+}
+
+
+// Double Buffered benchmark
+void double_buffered_benchmark(float* h_A, float* h_B, float* h_C, float* h_Output, int M, int N, int K, float alpha, float beta, int num_iterations, float* time) {
+    size_t size_A = M * K * sizeof(float);
+    size_t size_B = K * N * sizeof(float);
+    size_t size_C = M * N * sizeof(float);
+
+    float *d_A, *d_B, *d_C;
+    cudaMalloc(&d_A, size_A);
+    cudaMalloc(&d_B, size_B);
+    cudaMalloc(&d_C, size_C);
+
+    cudaMemcpy(d_A, h_A, size_A, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_B, h_B, size_B, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_C, h_C, size_C, cudaMemcpyHostToDevice);
+
+    // Warmup
+    double_buffered_host(d_A, d_B, d_C, M, N, K, alpha, beta);
+
+    cudaEvent_t start, stop;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+
+    cudaEventRecord(start);
+    for (int i = 0; i < num_iterations; i++) {
+        double_buffered_host(d_A, d_B, d_C, M, N, K, alpha, beta);
+    }
+    cudaEventRecord(stop);
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(time, start, stop);
+
+    cudaMemcpy(h_Output, d_C, size_C, cudaMemcpyDeviceToHost);
+
+    cudaFree(d_A);
+    cudaFree(d_B);
+    cudaFree(d_C);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(stop);
+}
+
+
+// cuBLAS benchmark
+void cublas_benchmark(float* h_A, float* h_B, float* h_C, float* h_Output, int M, int N, int K, float alpha, float beta, int num_iterations, float* time) {
+    size_t size_A = M * K * sizeof(float);
+    size_t size_B = K * N * sizeof(float);
+    size_t size_C = M * N * sizeof(float);
+
+    float *d_A, *d_B, *d_C;
+    cudaMalloc(&d_A, size_A);
+    cudaMalloc(&d_B, size_B);
+    cudaMalloc(&d_C, size_C);
+
+    cudaMemcpy(d_A, h_A, size_A, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_B, h_B, size_B, cudaMemcpyHostToDevice);
+    cudaMemcpy(d_C, h_C, size_C, cudaMemcpyHostToDevice);
+
+    // Create cuBLAS handle
+    cublasHandle_t handle;
+    cublasCreate(&handle);
+
+    // Warmup
+    cublas_host(d_A, d_B, d_C, M, N, K, alpha, beta, handle);
+
+    cudaEvent_t start, stop;
+    cudaEventCreate(&start);
+    cudaEventCreate(&stop);
+
+    cudaEventRecord(start);
+    for (int i = 0; i < num_iterations; i++) {
+        cublas_host(d_A, d_B, d_C, M, N, K, alpha, beta, handle);
+    }
+    cudaEventRecord(stop);
+    cudaEventSynchronize(stop);
+    cudaEventElapsedTime(time, start, stop);
+
+    cudaMemcpy(h_Output, d_C, size_C, cudaMemcpyDeviceToHost);
+
+    cudaFree(d_A);
+    cudaFree(d_B);
+    cudaFree(d_C);
+
+    cublasDestroy(handle);
+
+    cudaEventDestroy(start);
+    cudaEventDestroy(stop);
 }
