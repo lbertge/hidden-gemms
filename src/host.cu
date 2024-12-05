@@ -57,7 +57,7 @@ const int TM = 8;
 // Tiled Matrix Multiplication 1D host
 void block_tiling_1d_host(float* A, float* B, float* C, int M, int N, int K, float alpha, float beta) {
     dim3 gridDim(CEIL(M, BM), CEIL(N, BN));
-    dim3 blockDim(BM / TM * BN);
+    dim3 blockDim(BM / TM, BN);
     block_tiling_1d_kernel<BM, BN, BK, TM><<<gridDim, blockDim>>>(A, B, C, M, N, K, alpha, beta);
 }
 
