@@ -39,7 +39,7 @@ __global__ void vectorized_kernel(const float *A, const float *B, float *C, int 
         #pragma unroll
         for (int i = 0; i < BM; i += AsStep) {
             int vec_num = i / AsStep * 4;
-            reinterpret_cast<float4 *>(&A_trans_temp[vec_num])[0] = reinterpret_cast<float4 *>(&A[AStart + (AsRow + i) * K + AsCol + k])[0];
+            reinterpret_cast<float4 *>(&A_trans_temp[vec_num])[0] = reinterpret_cast<const float4 *>(&A[AStart + (AsRow + i) * K + AsCol + k])[0];
             As[AsCol][AsRow + i] = A_trans_temp[vec_num];
             As[AsCol + 1][AsRow + i] = A_trans_temp[vec_num + 1];
             As[AsCol + 2][AsRow + i] = A_trans_temp[vec_num + 2];
@@ -47,7 +47,7 @@ __global__ void vectorized_kernel(const float *A, const float *B, float *C, int 
         }
         #pragma unroll
         for (int i = 0; i < BK; i += BsStep) {
-            reinterpret_cast<float4 *>(&Bs[BsRow + i][BsCol])[0] = reinterpret_cast<float4 *>(&B[BStart + (BsRow + i) * N + BsCol + k * N])[0];
+            reinterpret_cast<float4 *>(&Bs[BsRow + i][BsCol])[0] = reinterpret_cast<const float4 *>(&B[BStart + (BsRow + i) * N + BsCol + k * N])[0];
         }
         __syncthreads();
 
@@ -55,12 +55,12 @@ __global__ void vectorized_kernel(const float *A, const float *B, float *C, int 
         for (int i = 0; i < BK; ++i) {
             #pragma unroll
             for (int j = 0; j < TM; j += 4) {
-                reinterpret_cast<float4 *>(&tmp_a[j])[0] = reinterpret_cast<float4 *>(&As[i][ty + j])[0];
+                reinterpret_cast<float4 *>(&tmp_a[j])[0] = reinterpret_cast<const float4 *>(&As[i][ty + j])[0];
             }
 
             #pragma unroll
             for (int l = 0; l < TN; l += 4) {
-                reinterpret_cast<float4 *>(&tmp_b[l])[0] = reinterpret_cast<float4 *>(&Bs[i][tx + l])[0];
+                reinterpret_cast<float4 *>(&tmp_b[l])[0] = reinterpret_cast<const float4 *>(&Bs[i][tx + l])[0];
             }
 
             #pragma unroll
