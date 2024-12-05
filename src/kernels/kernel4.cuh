@@ -75,25 +75,24 @@ __global__ void block_tiling_1d_kernel(const float *A, const float *B, float *C,
 
     int bx = blockIdx.x;
     int by = blockIdx.y;
-    int thread_num = blockDim.x * blockDim.y;
+    int thread_num = blockDim.x;
 
-    int tx = threadIdx.x;
-    int ty = threadIdx.y;
-    int thread_id = ty * blockDim.x + tx;
+    int tx = threadIdx.x % BN;
+    int ty = threadIdx.x / BN * TM;
 
     int AStart = by * BM * K;
     int BStart = bx * BN;
     int CStart = by * BM * N + bx * BN;
 
-    int AsRow = thread_id / BK;
-    int AsCol = thread_id % BK;
+    int AsRow = threadIdx.x / BK;
+    int AsCol = threadIdx.x % BK;
     int AsStep = thread_num / BK;
 
-    int BsRow = thread_id / BN;
-    int BsCol = thread_id % BN;
+    int BsRow = threadIdx.x / BN;
+    int BsCol = threadIdx.x % BN;
     int BsStep = thread_num / BN;
 
-    float reg[TM + 1] = {0.0f};
+    float reg[TM + 1] = {0.0};
 
     #pragma unroll
     for (int k = 0; k < K; k += BK) {
@@ -115,7 +114,7 @@ __global__ void block_tiling_1d_kernel(const float *A, const float *B, float *C,
         reg[TM] = Bs[i][tx];
         #pragma unroll
         for (int j = 0; j < TM; ++j) {
-          reg[j] += As[ty * TM + j][i] * reg[TM];
+          reg[j] += As[ty + j][i] * reg[TM];
         }
       }
       __syncthreads();
@@ -123,6 +122,6 @@ __global__ void block_tiling_1d_kernel(const float *A, const float *B, float *C,
 
     #pragma unroll
     for (int i = 0; i < TM; ++i) {
-      C[CStart + (ty * TM + i) * N + tx] = alpha * reg[i] + beta * C[CStart + (ty * TM + i) * N + tx];
+      C[CStart + (ty + i) * N + tx] = alpha * reg[i] + beta * C[CStart + (ty + i) * N + tx];
     }
 }
