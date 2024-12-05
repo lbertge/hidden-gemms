@@ -48,20 +48,31 @@ void shared_memory_host(float* A, float* B, float* C, int M, int N, int K, float
     shared_memory_kernel<<<dimGrid, dimBlock>>>(A, B, C, M, N, K, alpha, beta);
 }
 
-// Block tiling parameters
-const int BM = 64;
-const int BN = 64;
-const int BK = 8;
-const int TM = 8;
-
 // Tiled Matrix Multiplication 1D host
 void block_tiling_1d_host(float* A, float* B, float* C, int M, int N, int K, float alpha, float beta) {
+    // Block 1d tiling parameters
+    const int BM = 64;
+    const int BN = 64;
+    const int BK = 8;
+    const int TM = 8;
     dim3 gridDim(CEIL(M, BM), CEIL(N, BN));
     dim3 blockDim(BM / TM * BN);
     block_tiling_1d_kernel<BM, BN, BK, TM><<<gridDim, blockDim>>>(A, B, C, M, N, K, alpha, beta);
 }
 
+
 // Tiled Matrix Multiplication 2D host
+void block_tiling_2d_host(float* A, float* B, float* C, int M, int N, int K, float alpha, float beta) {
+    // Block 2d tiling parameters
+    const int BM = 128;
+    const int BN = 128;
+    const int BK = 8;
+    const int TM = 8;
+    const int TN = 8;
+    dim3 gridDim(CEIL(M, BM), CEIL(N, BN));
+    dim3 blockDim(BM / TM * BN / TN);
+    block_tiling_2d_kernel<BM, BN, BK, TM, TN><<<gridDim, blockDim>>>(A, B, C, M, N, K, alpha, beta);
+}
 
 
 // Vectorized host

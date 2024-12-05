@@ -26,24 +26,24 @@ __global__ void block_tiling_1d_kernel(const float *A, const float *B, float *C,
 
     #pragma unroll
     for (int k = 0; k < K; k += BK) {
-      As[AsRow][AsCol] = A[AStart + AsRow * K + AsCol + k];
-      Bs[BsRow][BsCol] = B[BStart + BsRow * N + BsCol + k * N];
-      __syncthreads();
+        As[AsRow][AsCol] = A[AStart + AsRow * K + AsCol + k];
+        Bs[BsRow][BsCol] = B[BStart + BsRow * N + BsCol + k * N];
+        __syncthreads();
 
-      #pragma unroll
-      for (int i = 0; i < BK; ++i) {
-        reg[TM] = Bs[i][tx];
         #pragma unroll
-        for (int j = 0; j < TM; ++j) {
-          reg[j] += As[ty + j][i] * reg[TM];
+        for (int i = 0; i < BK; ++i) {
+            reg[TM] = Bs[i][tx];
+            #pragma unroll
+            for (int j = 0; j < TM; ++j) {
+                reg[j] += As[ty + j][i] * reg[TM];
+            }
         }
-      }
-      __syncthreads();
+        __syncthreads();
     }
 
     #pragma unroll
     for (int i = 0; i < TM; ++i) {
-      C[CStart + (ty + i) * N + tx] = alpha * reg[i] + beta * C[CStart + (ty + i) * N + tx];
+        C[CStart + (ty + i) * N + tx] = alpha * reg[i] + beta * C[CStart + (ty + i) * N + tx];
     }
 }
 
