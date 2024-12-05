@@ -11,7 +11,7 @@ __global__ void vectorized_kernel(const float *A, const float *B, float *C, int 
 
     const int tx = (threadIdx.x % (BN / TN)) * TN;
     const int ty = (threadIdx.x / (BN / TN)) * TM;
-    const int thread_num = blockDim.x;
+    const int thread_num = BM / TM * BN / TN;
 
     const int AStart = by * BM * K;
     const int BStart = bx * BN;
