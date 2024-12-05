@@ -2,7 +2,7 @@
 
 // 1D block tiling kernel
 template <const int BM, const int BN, const int BK, const int TM>
-__global__ void block_tiling_1d_kernel_bk(const float *A, const float *B, float *C, int M, int N, int K, float alpha, float beta) {
+__global__ void block_tiling_1d_kernel(const float *A, const float *B, float *C, int M, int N, int K, float alpha, float beta) {
   // If we flip x and y here we get ~30% less performance for large matrices.
   // The current, 30% faster configuration ensures that blocks with sequential
   // blockIDs access columns of B sequentially, while sharing the same row of A.
@@ -69,7 +69,7 @@ __global__ void block_tiling_1d_kernel_bk(const float *A, const float *B, float 
 }
 
 template <const int BM, const int BN, const int BK, const int TM>
-__global__ void block_tiling_1d_kernel(const float *A, const float *B, float *C, int M, int N, int K, float alpha, float beta) {
+__global__ void block_tiling_1d_kernel_bk(const float *A, const float *B, float *C, int M, int N, int K, float alpha, float beta) {
     __shared__ float As[BM][BK];
     __shared__ float Bs[BK][BN];
 
