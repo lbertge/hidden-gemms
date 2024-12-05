@@ -11,6 +11,7 @@ __global__ void block_tiling_2d_kernel(const float *A, const float *B, float *C,
 
     int tx = threadIdx.x % (BN / TN) * TN;
     int ty = threadIdx.x / (BN / TN) * TM;
+    int thread_num = blockDim.x;
 
     int AStart = by * BM * K;
     int BStart = bx * BN;
@@ -18,16 +19,24 @@ __global__ void block_tiling_2d_kernel(const float *A, const float *B, float *C,
 
     int AsRow = threadIdx.x / BK;
     int AsCol = threadIdx.x % BK;
+    int AsStep = thread_num / BK;
 
     int BsRow = threadIdx.x / BN;
     int BsCol = threadIdx.x % BN;
+    int BsStep = thread_num / BN;
 
     float reg[TM][TN] = {0.0f};
 
     #pragma unroll
     for (int k = 0; k < K; k += BK) {
-        As[AsRow][AsCol] = A[AStart + AsRow * K + AsCol + k];
-        Bs[BsRow][BsCol] = B[BStart + BsRow * N + BsCol + k * N];
+        #pragma unroll
+        for (int i = 0; i < BM; i += AsStep) {
+            As[AsRow + i][AsCol] = A[AStart + (AsRow + i) * K + AsCol + k];
+        }
+        #pragma unroll
+        for (int i = 0; i < BK; i += BsStep) {
+            Bs[BsRow][BsCol + i] = B[BStart + BsRow * N + BsCol + i + k * N];
+        }
         __syncthreads();
 
         #pragma unroll
