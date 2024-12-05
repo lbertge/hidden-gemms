@@ -2,7 +2,7 @@
 
 // 1D block tiling kernel
 template <const int BM, const int BN, const int BK, const int TM>
-__global__ void block_tiling_1d_kernel(const float *A, const float *B, float *C, int M, int N, int K, float alpha, float beta) {
+__global__ void block_tiling_1d_kernel(float *A, float *B, float *C, int M, int N, int K, float alpha, float beta) {
     __shared__ float As[BM][BK];
     __shared__ float Bs[BK][BN];
 
