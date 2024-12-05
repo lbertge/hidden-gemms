@@ -1,8 +1,29 @@
 #include "kernels.cuh"
 #include <cublas_v2.h>
+#include <cmath> // For fabs
 
 #define TILE_WIDTH 32
 #define CEIL(M, N) (((M) + (N) - 1) / (N))
+
+#define EPSILON 1e-2
+
+template <typename T>
+bool compare_results(const T* kernel, const T* cublas, int M, int N) {
+    bool match = true;
+    for (int i = 0; i < n * n; ++i) {
+        if (std::fabs(kernel[i] - cublas[i]) > EPSILON) {
+            match = false;
+            std::cout << "Mismatch at index " << i 
+                        << " (row " << i / n << ", col " << i % n << "): "
+                        << "Kernel result = " << kernel[i] 
+                        << ", Cublas result = " << cublas[i] 
+                        << ", diff = " << std::fabs(kernel[i] - cublas[i]) 
+                        << '\n';
+        }
+
+    }
+    return match;
+}
 
 // Naive host
 void naive_host(float* A, float* B, float* C, int M, int N, int K, float alpha, float beta) {

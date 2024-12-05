@@ -2,6 +2,9 @@
 
 #include <cublas_v2.h>
 
+template <typename T>
+bool compare_results(const T* kernel, const T* cublas, int M, int N);
+
 void naive_host(float* A, float* B, float* C, int M, int N, int K, float alpha, float beta);
 
 void coal_host(float* A, float* B, float* C, int M, int N, int K, float alpha, float beta);

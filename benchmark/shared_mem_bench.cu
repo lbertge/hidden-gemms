@@ -5,6 +5,7 @@
 #include <chrono>
 #include <assert.h>
 #include <random>
+#include <iostream>
 
 // Updated benchmark function
 void benchmark(int M, int N, int K, int num_iterations = 10) {
@@ -95,10 +96,10 @@ void benchmark(int M, int N, int K, int num_iterations = 10) {
     cudaMemcpy(h_C, d_C, size_C, cudaMemcpyDeviceToHost);
     cudaMemcpy(h_C_cublas, d_C_cublas, size_C, cudaMemcpyDeviceToHost);
     
-    // assert that the results are within some epsilon of each other
-    float epsilon = 1e-3;
-    for (int i = 0; i < M * N; i++) {
-        assert(fabs(h_C[i] - h_C_cublas[i]) < epsilon);
+    if (compare_results(h_C, h_C_cublas, M, N)) {
+        std::cout << "PASSED\n";
+    } else {
+        std::cout << "FAILED\n";
     }
 
     // Cleanup

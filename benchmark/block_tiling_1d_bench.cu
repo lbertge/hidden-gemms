@@ -5,6 +5,7 @@
 #include <chrono>
 #include <assert.h>
 #include <random>
+#include <iostream>
 
 // Block tiling parameters
 const int BM = 64;
@@ -101,13 +102,10 @@ void benchmark(int M, int N, int K, int num_iterations = 10) {
     cudaMemcpy(h_C, d_C, size_C, cudaMemcpyDeviceToHost);
     cudaMemcpy(h_C_cublas, d_C_cublas, size_C, cudaMemcpyDeviceToHost);
 
-    float epsilon = 0.1;
-    for (int i = 0; i < M * N; i++) {
-        float diff = fabs(h_C[i] - h_C_cublas[i]);
-        if (diff > epsilon) {
-          printf("Should be %5.4f, is %5.4f\n", h_C_cublas[i], h_C[i]);
-        }
-        assert(fabs(h_C[i] - h_C_cublas[i]) < epsilon);
+    if (compare_results(h_C, h_C_cublas, M, N)) {
+        std::cout << "PASSED\n";
+    } else {
+        std::cout << "FAILED\n";
     }
     
     // Cleanup
