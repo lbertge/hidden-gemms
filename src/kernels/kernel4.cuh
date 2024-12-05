@@ -22,10 +22,12 @@ __global__ void block_tiling_1d_kernel(float *A, float *B, float *C, int M, int 
     int BsRow = threadIdx.x / BN;
     int BsCol = threadIdx.x % BN;
 
+    // Register file to store the result, last one is for temporary storage
     float reg[TM + 1] = {0.0f};
 
     #pragma unroll
     for (int k = 0; k < K; k += BK) {
+        // Since 1D block tiling, we don't need to iterate
         As[AsRow][AsCol] = A[AStart + AsRow * K + AsCol + k];
         Bs[BsRow][BsCol] = B[BStart + BsRow * N + BsCol + k * N];
         __syncthreads();

@@ -29,6 +29,7 @@ __global__ void block_tiling_2d_kernel(float *A, float *B, float *C, int M, int 
 
     #pragma unroll
     for (int k = 0; k < K; k += BK) {
+        // We do need to iterate through since this is 2D block tiling
         #pragma unroll
         for (int i = 0; i < BM; i += AsStep) {
             As[AsRow + i][AsCol] = A[AStart + (AsRow + i) * K + AsCol + k];

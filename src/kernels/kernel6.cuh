@@ -1,10 +1,12 @@
 #pragma once
 
+// A macro to help with vectorization
 #define vec(ptr) (reinterpret_cast<float4*>(&(ptr))[0])
 
 // Vectorize kernel
 template <const int BM, const int BN, const int BK, const int TM, const int TN>
 __global__ void vectorized_kernel(float *A, float *B, float *C, int M, int N, int K, float alpha, float beta) {
+    // As is BK x BM because we transpose As
     __shared__ float As[BK][BM];
     __shared__ float Bs[BK][BN];
 
@@ -19,11 +21,14 @@ __global__ void vectorized_kernel(float *A, float *B, float *C, int M, int N, in
     int BStart = bx * BN;
     int CStart = by * BM * N + bx * BN;
 
+    // How many vectors we need to load in a thread
     const int As_vec_num = BM * BK / thread_num / 4;
     const int Bs_vec_num = BK * BN / thread_num / 4;
 
     int AsRow = threadIdx.x / (BK / 4);
+    // float4 is along the row so we need to multiply by 4 for column
     int AsCol = threadIdx.x % (BK / 4) * 4;
+    // AsStep is the step size for each load given a thread
     int AsStep = BM / As_vec_num;
 
     int BsRow = threadIdx.x / (BN / 4);
@@ -40,6 +45,7 @@ __global__ void vectorized_kernel(float *A, float *B, float *C, int M, int N, in
     for (int k = 0; k < K; k += BK) {
         #pragma unroll
         for (int i = 0; i < BM; i += AsStep) {
+            // We need to do the transpose so we can use vectorization later
             int vec_num = i / AsStep * 4;
             vec(A_trans_temp[vec_num]) = vec(A[AStart + (AsRow + i) * K + AsCol + k]);
             As[AsCol][AsRow + i] = A_trans_temp[vec_num];

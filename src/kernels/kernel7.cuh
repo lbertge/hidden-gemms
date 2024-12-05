@@ -5,8 +5,8 @@
 // Double Buffering
 template <const int BM, const int BN, const int BK, const int TM, const int TN>
 __global__ void double_buffered_kernel(float *A, float *B, float *C, int M, int N, int K, float alpha, float beta) {
-    __shared__ float As[BK][BM];
-    __shared__ float Bs[BK][BN];
+    __shared__ float As[2][BK][BM];
+    __shared__ float Bs[2][BK][BN];
 
     int bx = blockIdx.x;
     int by = blockIdx.y;
@@ -31,10 +31,26 @@ __global__ void double_buffered_kernel(float *A, float *B, float *C, int M, int 
     int BsStep = BK / Bs_vec_num;
 
     float sum[TM][TN] = {0.0f};
-    float tmp_a[TM] = {0.0f};
-    float tmp_b[TN] = {0.0f};
+    float tmp_a[2][TM];
+    float tmp_b[2][TN];
 
-    float A_trans_temp[4 * As_vec_num] = {0.0f};
+    float A_trans_temp[4 * As_vec_num];
+
+    // Double Buffering Loop initialization
+    #pragma unroll
+    for (int i = 0; i < BM; i += AsStep) {
+        int vec_num = i / AsStep * 4;
+        vec(A_trans_temp[vec_num]) = vec(A[AStart + (AsRow + i) * K + AsCol + k]);
+        As[0][AsCol][AsRow + i] = A_trans_temp[vec_num];
+        As[0][AsCol + 1][AsRow + i] = A_trans_temp[vec_num + 1];
+        As[0][AsCol + 2][AsRow + i] = A_trans_temp[vec_num + 2];
+        As[0][AsCol + 3][AsRow + i] = A_trans_temp[vec_num + 3];
+    }
+    #pragma unroll
+    for (int i = 0; i < BK; i += BsStep) {
+        vec(Bs[0][BsRow + i][BsCol]) = vec(B[BStart + (BsRow + i) * N + BsCol + k * N]);
+    }
+    __syncthreads();
 
     #pragma unroll
     for (int k = 0; k < K; k += BK) {
