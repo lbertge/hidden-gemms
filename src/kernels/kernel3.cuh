@@ -8,16 +8,16 @@ __global__ void shared_memory_kernel(float* A, float* B, float* C, int M, int N,
     __shared__ float Bs[TILE_WIDTH][TILE_WIDTH];
 
     // first, figure out which output tile we are working on 
-    int cRow = blockIdx.x; 
-    int cCol = blockIdx.y; 
+    int bx = blockIdx.x;
+    int by = blockIdx.y; 
 
     // compute which element in the output tile this thread is responsible for
     int tx = threadIdx.x; 
     int ty = threadIdx.y; 
 
     // the actual row & col that we're accessing in this thread
-    int AStart = cRow * TILE_WIDTH * K;
-    int BStart = cCol * TILE_WIDTH;
+    int AStart = by * TILE_WIDTH * K;
+    int BStart = bx * TILE_WIDTH;
     int AStep = TILE_WIDTH;
     int BStep = TILE_WIDTH * N;
     int AEnd = AStart + K - 1;
@@ -41,6 +41,8 @@ __global__ void shared_memory_kernel(float* A, float* B, float* C, int M, int N,
         __syncthreads(); 
     }
 
-    int idx = N * TILE_WIDTH * cRow + TILE_WIDTH * cCol;
-    C[idx + N * ty + tx] = alpha * sum + beta * C[idx + N * ty + tx];
+    int row = by * TILE_WIDTH + ty;
+    int col = bx * TILE_WIDTH + tx;
+    int idx = row * N + col;
+    C[idx] = alpha * sum + beta * C[idx];
 }
