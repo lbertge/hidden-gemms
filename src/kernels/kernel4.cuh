@@ -22,7 +22,7 @@ __global__ void block_tiling_1d_kernel(const float *A, const float *B, float *C,
     int BsRow = threadIdx.x / BN;
     int BsCol = threadIdx.x % BN;
 
-    float reg[TM + 1] = {0.0};
+    float reg[TM + 1] = {0.0f};
 
     #pragma unroll
     for (int k = 0; k < K; k += BK) {

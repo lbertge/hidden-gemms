@@ -21,6 +21,7 @@ __global__ void shared_memory_kernel(float* A, float* B, float* C, int M, int N,
 
     float sum = 0.0f;
 
+    #pragma unroll
     for (int a = AStart, b = BStart; a <= AEnd; a += AStep, b += BStep) {
 
         As[ty][tx] = A[a + K * ty + tx];
@@ -28,6 +29,7 @@ __global__ void shared_memory_kernel(float* A, float* B, float* C, int M, int N,
 
         __syncthreads(); 
 
+        #pragma unroll
         for (int k = 0; k < TILE_WIDTH; k++) {
             sum += As[ty][k] * Bs[k][tx];
         }
