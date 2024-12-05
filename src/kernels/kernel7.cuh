@@ -2,7 +2,7 @@
 
 #define vec(ptr) (reinterpret_cast<float4*>(&(ptr))[0])
 
-// Double Buffering
+// Double Buffering Kernel, not completed
 template <const int BM, const int BN, const int BK, const int TM, const int TN>
 __global__ void double_buffered_kernel(float *A, float *B, float *C, int M, int N, int K, float alpha, float beta) {
     __shared__ float As[2][BK][BM];
