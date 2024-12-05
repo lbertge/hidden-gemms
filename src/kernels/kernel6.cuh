@@ -31,10 +31,10 @@ __global__ void vectorized_kernel(float *A, float *B, float *C, int M, int N, in
     int BsStep = BK / Bs_vec_num;
 
     float sum[TM][TN] = {0.0f};
-    float tmp_a[TM] = {0.0f};
-    float tmp_b[TN] = {0.0f};
+    float tmp_a[TM];
+    float tmp_b[TN];
 
-    float A_trans_temp[4 * As_vec_num] = {0.0f};
+    float A_trans_temp[4 * As_vec_num];
 
     #pragma unroll
     for (int k = 0; k < K; k += BK) {
