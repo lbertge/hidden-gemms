@@ -141,23 +141,23 @@ void benchmark(int M, int N, int K, int num_iterations = 10) {
 
     delete[] h_Vectorized;
 
-    float *h_DoubleBuffered = new float[M * N];
-    float double_buffered_time;
-    double_buffered_benchmark(h_A, h_B, h_C, h_DoubleBuffered, M, N, K, alpha, beta, num_iterations, &double_buffered_time);
-    double_buffered_time /= num_iterations;
+    // float *h_DoubleBuffered = new float[M * N];
+    // float double_buffered_time;
+    // double_buffered_benchmark(h_A, h_B, h_C, h_DoubleBuffered, M, N, K, alpha, beta, num_iterations, &double_buffered_time);
+    // double_buffered_time /= num_iterations;
 
-    // Calculate GFLOPS
-    double double_buffered_gflops = (operations * 1e-9) / (double_buffered_time * 1e-3);
+    // // Calculate GFLOPS
+    // double double_buffered_gflops = (operations * 1e-9) / (double_buffered_time * 1e-3);
 
-    // Print results
-    printf("Double buffered implementation: %.3f ms (%.2f GFLOP/s)\n", double_buffered_time, double_buffered_gflops);
+    // // Print results
+    // printf("Double buffered implementation: %.3f ms (%.2f GFLOP/s)\n", double_buffered_time, double_buffered_gflops);
 
-    // Compare results
-    if (!compare_results(h_DoubleBuffered, h_Cublas, M, N)) {
-        printf("Double buffered and cuBLAS results do not match!\n");
-    }
+    // // Compare results
+    // if (!compare_results(h_DoubleBuffered, h_Cublas, M, N)) {
+    //     printf("Double buffered and cuBLAS results do not match!\n");
+    // }
 
-    delete[] h_DoubleBuffered;
+    // delete[] h_DoubleBuffered;
 
     // Cleanup
     delete[] h_A;
@@ -173,14 +173,11 @@ void benchmark(int M, int N, int K, int num_iterations = 10) {
     printf("  cuBLAS/block1D: %.2fx\n", block1D_time / cublas_time);
     printf("  cuBLAS/block2D: %.2fx\n", block2D_time / cublas_time);
     printf("  cuBLAS/vectorized: %.2fx\n", vectorized_time / cublas_time);
-    printf("  cuBLAS/double_buffered: %.2fx\n", double_buffered_time / cublas_time);
+    // printf("  cuBLAS/double_buffered: %.2fx\n", double_buffered_time / cublas_time);
 }
 
 int main() {
-    // Test with different matrix sizes
-    int sizes[] = {512, 1024, 2048, 4096};
-    
-    for (int size : sizes) {
+    for (int size = 256; size <= 8192; size += 256) {
         benchmark(size, size, size);
         printf("\n");
     }
