@@ -118,6 +118,7 @@ __global__ void block_tiling_1d_kernel(const float *A, const float *B, float *C,
           reg[j] += As[ty * TM + j][i] * reg[TM];
         }
       }
+      __syncthreads();
     }
 
     #pragma unroll
