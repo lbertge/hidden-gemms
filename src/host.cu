@@ -77,10 +77,15 @@ void block_tiling_2d_host(float* A, float* B, float* C, int M, int N, int K, flo
 
 // Vectorized host
 void vectorized_host(float* A, float* B, float* C, int M, int N, int K, float alpha, float beta) {
-    dim3 gridDim(CEIL(M, TILE_WIDTH), CEIL(N, TILE_WIDTH));
-    dim3 blockDim(TILE_WIDTH, TILE_WIDTH);
-    
-    vectorized_kernel<<<gridDim, blockDim>>>(A, B, C, M, N, K, alpha, beta);
+    // Block 2d tiling parameters
+    const int BM = 128;
+    const int BN = 128;
+    const int BK = 8;
+    const int TM = 8;
+    const int TN = 8;
+    dim3 gridDim(CEIL(M, BM), CEIL(N, BN));
+    dim3 blockDim(BM / TM * BN / TN);
+    vectorized_kernel<BM, BN, BK, TM, TN><<<gridDim, blockDim>>>(A, B, C, M, N, K, alpha, beta);
 }
 
 
