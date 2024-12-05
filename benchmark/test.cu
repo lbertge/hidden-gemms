@@ -35,7 +35,7 @@ void benchmark(int M, int N, int K, int num_iterations = 10) {
     for (int i = 0; i < M * N; i++) h_C[i] = distribution(generator);  // Initialize C as well
     
     // Allocate device memory
-    float *d_A, *d_B, *d_C, *d_C_cublas;
+    float *d_A, *d_B, *d_C;
     cudaMalloc(&d_A, size_A);
     cudaMalloc(&d_B, size_B);
     cudaMalloc(&d_C, size_C);
@@ -102,7 +102,7 @@ void benchmark(int M, int N, int K, int num_iterations = 10) {
 
 int main() {
     // Test with different matrix sizes
-    int sizes[] = {1024, 2048, 4096, 8192};
+    int sizes[] = {128, 256, 512, 1024, 2048};
     
     for (int size : sizes) {
         benchmark(size, size, size);
