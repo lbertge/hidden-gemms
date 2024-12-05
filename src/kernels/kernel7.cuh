@@ -84,18 +84,18 @@ __global__ void double_buffered_kernel(float *A, float *B, float *C, int M, int 
         for (int i = 0; i < BK - 1; ++i) {
             #pragma unroll
             for (int j = 0; j < TM; j += 4) {
-                vec(tmp_a[!state][j]) = vec(As[!state][i + 1][ty + j]);
+                vec(tmp_a[(i + 1) % 2][j]) = vec(As[!state][i + 1][ty + j]);
             }
 
             #pragma unroll
             for (int l = 0; l < TN; l += 4) {
-                vec(tmp_b[!state][l]) = vec(Bs[!state][i + 1][tx + l]);
+                vec(tmp_b[(i + 1) % 2][l]) = vec(Bs[!state][i + 1][tx + l]);
             }
 
             #pragma unroll
             for (int j = 0; j < TM; ++j) {
                 for (int l = 0; l < TN; ++l) {
-                    sum[j][l] += tmp_a[!state][j] * tmp_b[!state][l];
+                    sum[j][l] += tmp_a[i % 2][j] * tmp_b[i % 2][l];
                 }
             }
         }        
@@ -125,12 +125,12 @@ __global__ void double_buffered_kernel(float *A, float *B, float *C, int M, int 
             for (int l = 0; l < TN; l += 4) {
                 vec(tmp_b[0][l]) = vec(Bs[state][0][tx + l]);
             }
-            state ^= 1;
+            state = !state;
         }
         #pragma unroll
         for (int j = 0; j < TM; ++j) {
             for (int l = 0; l < TN; ++l) {
-                sum[j][l] += tmp_a[!state][j] * tmp_b[!state][l];
+                sum[j][l] += tmp_a[(BK - 1) % 2][j] * tmp_b[(BK - 1) % 2][l];
             }
         }
     } while (k < K);
