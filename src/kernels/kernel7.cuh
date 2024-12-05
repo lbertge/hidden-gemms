@@ -40,7 +40,7 @@ __global__ void double_buffered_kernel(float *A, float *B, float *C, int M, int 
     #pragma unroll
     for (int i = 0; i < BM; i += AsStep) {
         int vec_num = i / AsStep * 4;
-        vec(A_trans_temp[vec_num]) = vec(A[AStart + (AsRow + i) * K + AsCol + k]);
+        vec(A_trans_temp[vec_num]) = vec(A[AStart + (AsRow + i) * K + AsCol]);
         As[0][AsCol][AsRow + i] = A_trans_temp[vec_num];
         As[0][AsCol + 1][AsRow + i] = A_trans_temp[vec_num + 1];
         As[0][AsCol + 2][AsRow + i] = A_trans_temp[vec_num + 2];
@@ -48,7 +48,7 @@ __global__ void double_buffered_kernel(float *A, float *B, float *C, int M, int 
     }
     #pragma unroll
     for (int i = 0; i < BK; i += BsStep) {
-        vec(Bs[0][BsRow + i][BsCol]) = vec(B[BStart + (BsRow + i) * N + BsCol + k * N]);
+        vec(Bs[0][BsRow + i][BsCol]) = vec(B[BStart + (BsRow + i) * N + BsCol]);
     }
 
     int k = 0;
@@ -60,14 +60,14 @@ __global__ void double_buffered_kernel(float *A, float *B, float *C, int M, int 
             for (int i = 0; i < BM; i += AsStep) {
                 int vec_num = i / AsStep * 4;
                 vec(A_trans_temp[vec_num]) = vec(A[AStart + (AsRow + i) * K + AsCol + k]);
-                As[^state][AsCol][AsRow + i] = A_trans_temp[vec_num];
-                As[^state][AsCol + 1][AsRow + i] = A_trans_temp[vec_num + 1];
-                As[^state][AsCol + 2][AsRow + i] = A_trans_temp[vec_num + 2];
-                As[^state][AsCol + 3][AsRow + i] = A_trans_temp[vec_num + 3];
+                As[!state][AsCol][AsRow + i] = A_trans_temp[vec_num];
+                As[!state][AsCol + 1][AsRow + i] = A_trans_temp[vec_num + 1];
+                As[!state][AsCol + 2][AsRow + i] = A_trans_temp[vec_num + 2];
+                As[!state][AsCol + 3][AsRow + i] = A_trans_temp[vec_num + 3];
             }
             #pragma unroll
             for (int i = 0; i < BK; i += BsStep) {
-                vec(Bs[^state][BsRow + i][BsCol]) = vec(B[BStart + (BsRow + i) * N + BsCol + k * N]);
+                vec(Bs[!state][BsRow + i][BsCol]) = vec(B[BStart + (BsRow + i) * N + BsCol + k * N]);
             }
         }
 
