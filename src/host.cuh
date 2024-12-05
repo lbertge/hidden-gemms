@@ -19,5 +19,3 @@ void vectorized_host(float* A, float* B, float* C, int M, int N, int K, float al
 void double_buffered_host(float* A, float* B, float* C, int M, int N, int K, float alpha, float beta);
 
 void cublas_host(float* A, float* B, float* C, int M, int N, int K, float alpha, float beta, cublasHandle_t handle);
-
-void cpu_gemm(float *A, float *B, float *C, int M, int N, int K, float alpha, float beta);
