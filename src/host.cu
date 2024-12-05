@@ -109,21 +109,19 @@ void cublas_host(float* A, float* B, float* C, int M, int N, int K, float alpha,
 }
 
 void cpu_gemm(float *A, float *B, float *C, int M, int N, int K, float alpha, float beta) {
-    // Scale matrix C by beta
     for (int i = 0; i < M; ++i) {
         for (int j = 0; j < N; ++j) {
-            C[i * N + j] *= beta;
+            C[j * M + i] *= beta;
         }
     }
 
-    // Perform matrix multiplication
     for (int i = 0; i < M; ++i) {
         for (int j = 0; j < N; ++j) {
             float sum = 0.0f;
             for (int k = 0; k < K; ++k) {
-                sum += A[i * K + k] * B[k * N + j];
+                sum += A[k * M + i] * B[j * K + k];
             }
-            C[i * N + j] += alpha * sum;
+            C[j * M + i] += alpha * sum;
         }
     }
 }
