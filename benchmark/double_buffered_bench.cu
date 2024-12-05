@@ -39,17 +39,11 @@ void benchmark(int M, int N, int K, int num_iterations = 10) {
     cudaMalloc(&d_A, size_A);
     cudaMalloc(&d_B, size_B);
     cudaMalloc(&d_C, size_C);
-    cudaMalloc(&d_C_cublas, size_C);
     
     // Copy data to device
     cudaMemcpy(d_A, h_A, size_A, cudaMemcpyHostToDevice);
     cudaMemcpy(d_B, h_B, size_B, cudaMemcpyHostToDevice);
     cudaMemcpy(d_C, h_C, size_C, cudaMemcpyHostToDevice);
-    cudaMemcpy(d_C_cublas, h_C, size_C, cudaMemcpyHostToDevice);
-    
-    // Create cuBLAS handle
-    cublasHandle_t handle;
-    cublasCreate(&handle);
     
     // Constants for SGEMM
     float alpha = 0.5f;
@@ -57,7 +51,6 @@ void benchmark(int M, int N, int K, int num_iterations = 10) {
     
     // Warmup runs
     double_buffered_host(d_A, d_B, d_C, M, N, K, alpha, beta);
-    cublas_host(d_A, d_B, d_C_cublas, M, N, K, alpha, beta, handle);
     
     // Benchmark custom implementation
     cudaEvent_t start, stop;
@@ -75,6 +68,18 @@ void benchmark(int M, int N, int K, int num_iterations = 10) {
     cudaEventElapsedTime(&custom_time, start, stop);
     custom_time /= num_iterations;
     
+    cudaFree(d_C);
+
+    cudaMalloc(&d_C_cublas, size_C);
+    cudaMemcpy(d_C_cublas, h_C, size_C, cudaMemcpyHostToDevice);
+
+    // Create cuBLAS handle
+    cublasHandle_t handle;
+    cublasCreate(&handle);
+
+    // Warmup runs
+    cublas_host(d_A, d_B, d_C_cublas, M, N, K, alpha, beta, handle);
+
     // Benchmark cuBLAS
     cudaEventRecord(start);
     for (int i = 0; i < num_iterations; i++) {
@@ -116,7 +121,6 @@ void benchmark(int M, int N, int K, int num_iterations = 10) {
     delete[] h_C_cublas;
     cudaFree(d_A);
     cudaFree(d_B);
-    cudaFree(d_C);
     cudaFree(d_C_cublas);
     cublasDestroy(handle);
     cudaEventDestroy(start);
