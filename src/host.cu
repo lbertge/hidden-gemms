@@ -107,3 +107,23 @@ void double_buffered_host(float* A, float* B, float* C, int M, int N, int K, flo
 void cublas_host(float* A, float* B, float* C, int M, int N, int K, float alpha, float beta, cublasHandle_t handle) {
     cublasSgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, N, M, K, &alpha, B, N, A, K, &beta, C, N);
 }
+
+void cpu_gemm(float *A, float *B, float *C, int M, int N, int K, float alpha, float beta) {
+    // Scale matrix C by beta
+    for (int i = 0; i < M; ++i) {
+        for (int j = 0; j < N; ++j) {
+            C[i * N + j] *= beta;
+        }
+    }
+
+    // Perform matrix multiplication
+    for (int i = 0; i < M; ++i) {
+        for (int j = 0; j < N; ++j) {
+            float sum = 0.0f;
+            for (int k = 0; k < K; ++k) {
+                sum += A[i * K + k] * B[k * N + j];
+            }
+            C[i * N + j] += alpha * sum;
+        }
+    }
+}
