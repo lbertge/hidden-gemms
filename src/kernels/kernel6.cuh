@@ -8,16 +8,16 @@ __global__ void vectorized_kernel(const float *A, const float *B, float *C, int 
     __shared__ float As[BM][BK];
     __shared__ float Bs[BK][BN];
 
-    const int bx = blockIdx.x;
-    const int by = blockIdx.y;
+    int bx = blockIdx.x;
+    int by = blockIdx.y;
 
-    const int tx = (threadIdx.x % (BN / TN)) * TN;
-    const int ty = (threadIdx.x / (BN / TN)) * TM;
+    int tx = (threadIdx.x % (BN / TN)) * TN;
+    int ty = (threadIdx.x / (BN / TN)) * TM;
     const int thread_num = BM / TM * BN / TN;
 
-    const int AStart = by * BM * K;
-    const int BStart = bx * BN;
-    const int CStart = by * BM * N + bx * BN;
+    int AStart = by * BM * K;
+    int BStart = bx * BN;
+    int CStart = by * BM * N + bx * BN;
 
     const int As_vec_num = BM * BK / thread_num / 4;
     const int Bs_vec_num = BK * BN / thread_num / 4;
