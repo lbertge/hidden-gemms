@@ -53,8 +53,17 @@ __global__ void double_buffered_kernel(float *A, float *B, float *C, int M, int 
     }
     __syncthreads();
 
+    #pragma unroll
+    for (int j = 0; j < TM; j += 4) {
+        vec(tmp_a[0][j]) = vec(As[0][0][ty + j]);
+    }
+    #pragma unroll
+    for (int l = 0; l < TN; l += 4) {
+        vec(tmp_b[0][l]) = vec(Bs[0][0][tx + l]);
+    }
+
     int k = 0;
-    int state = 0;
+    int state = 1;
     do {
         k += BK;
         if (k < K) {
@@ -72,21 +81,21 @@ __global__ void double_buffered_kernel(float *A, float *B, float *C, int M, int 
         }
 
         #pragma unroll
-        for (int i = 0; i < BK; ++i) {
+        for (int i = 0; i < BK - 1; ++i) {
             #pragma unroll
             for (int j = 0; j < TM; j += 4) {
-                vec(tmp_a[state][j]) = vec(As[state][i][ty + j]);
+                vec(tmp_a[!state][j]) = vec(As[!state][i + 1][ty + j]);
             }
 
             #pragma unroll
             for (int l = 0; l < TN; l += 4) {
-                vec(tmp_b[state][l]) = vec(Bs[state][i][tx + l]);
+                vec(tmp_b[!state][l]) = vec(Bs[!state][i + 1][tx + l]);
             }
 
             #pragma unroll
             for (int j = 0; j < TM; ++j) {
                 for (int l = 0; l < TN; ++l) {
-                    sum[j][l] += tmp_a[state][j] * tmp_b[state][l];
+                    sum[j][l] += tmp_a[!state][j] * tmp_b[!state][l];
                 }
             }
         }        
@@ -95,20 +104,35 @@ __global__ void double_buffered_kernel(float *A, float *B, float *C, int M, int 
             #pragma unroll
             for (int i = 0; i < BM; i += AsStep) {
                 int vec_num = i / AsStep * 4;
-                As[!state][AsCol][AsRow + i] = A_trans_temp[vec_num];
-                As[!state][AsCol + 1][AsRow + i] = A_trans_temp[vec_num + 1];
-                As[!state][AsCol + 2][AsRow + i] = A_trans_temp[vec_num + 2];
-                As[!state][AsCol + 3][AsRow + i] = A_trans_temp[vec_num + 3];
+                As[state][AsCol][AsRow + i] = A_trans_temp[vec_num];
+                As[state][AsCol + 1][AsRow + i] = A_trans_temp[vec_num + 1];
+                As[state][AsCol + 2][AsRow + i] = A_trans_temp[vec_num + 2];
+                As[state][AsCol + 3][AsRow + i] = A_trans_temp[vec_num + 3];
             }
 
             #pragma unroll
             for (int i = 0; i < BK; i += BsStep) {
                 int vec_num = i / BsStep * 4;
-                vec(Bs[!state][BsRow + i][BsCol]) = vec(B_temp[vec_num]);
+                vec(Bs[state][BsRow + i][BsCol]) = vec(B_temp[vec_num]);
             }
             __syncthreads();
+
+            #pragma unroll
+            for (int j = 0; j < TM; j += 4) {
+                vec(tmp_a[0][j]) = vec(As[state][0][ty + j]);
+            }
+            #pragma unroll
+            for (int l = 0; l < TN; l += 4) {
+                vec(tmp_b[0][l]) = vec(Bs[state][0][tx + l]);
+            }
+            state ^= 1;
         }
-        state ^= 1;
+        #pragma unroll
+        for (int j = 0; j < TM; ++j) {
+            for (int l = 0; l < TN; ++l) {
+                sum[j][l] += tmp_a[!state][j] * tmp_b[!state][l];
+            }
+        }
     } while (k < K);
 
     #pragma unroll
