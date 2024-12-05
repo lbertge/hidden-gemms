@@ -7,15 +7,12 @@ __global__ void shared_memory_kernel(float* A, float* B, float* C, int M, int N,
     __shared__ float As[TILE_WIDTH][TILE_WIDTH];
     __shared__ float Bs[TILE_WIDTH][TILE_WIDTH];
 
-    // first, figure out which output tile we are working on 
     int bx = blockIdx.x;
     int by = blockIdx.y; 
 
-    // compute which element in the output tile this thread is responsible for
     int tx = threadIdx.x; 
     int ty = threadIdx.y; 
 
-    // the actual row & col that we're accessing in this thread
     int AStart = by * TILE_WIDTH * K;
     int BStart = bx * TILE_WIDTH;
     int AStep = TILE_WIDTH;
@@ -29,15 +26,12 @@ __global__ void shared_memory_kernel(float* A, float* B, float* C, int M, int N,
         As[ty][tx] = A[a + K * ty + tx];
         Bs[ty][tx] = B[b + N * ty + tx];
 
-        // wait for all threads to finish loading before proceeding
         __syncthreads(); 
 
-        // compute the dot product for the current tile
         for (int k = 0; k < TILE_WIDTH; k++) {
             sum += As[ty][k] * Bs[k][tx];
         }
 
-        // wait for all threads to finish computing the dot product before proceeding
         __syncthreads(); 
     }
 

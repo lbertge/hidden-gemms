@@ -70,15 +70,58 @@ __global__ void block_tiling_1d_kernel_bk(const float *A, const float *B, float 
 
 template <const int BM, const int BN, const int BK, const int TM>
 __global__ void block_tiling_1d_kernel(const float *A, const float *B, float *C, int M, int N, int K, float alpha, float beta) {
-    int cRow = blockIdx.x; 
-    int cCol = blockIdx.y; 
-    int num = BM * BN / TM;
-
-    int tx = threadIdx.x;
-    int ty = threadIdx.y;
-
     __shared__ float As[BM][BK];
     __shared__ float Bs[BK][BN];
 
-    int AStart = cRow * BM * K;
+    int bx = blockIdx.x;
+    int by = blockIdx.y;
+    int thread_num = blockDim.x * blockDim.y;
+
+    int tx = threadIdx.x;
+    int ty = threadIdx.y;
+    int thread_id = ty * blockDim.x + tx;
+
+    int AStart = by * BM * K;
+    int BStart = bx * BN;
+    int CStart = by * BM * N + bx * BN;
+
+    int AsRow = thread_id / BK;
+    int AsCol = thread_id % BK;
+    int AsStep = thread_num / BK;
+
+    int BsRow = thread_id / BN;
+    int BsCol = thread_id % BN;
+    int BsStep = thread_num / BN;
+
+    float reg[TM + 1] = {0.0f};
+
+    #pragma unroll
+    for (int k = 0; k < K; k += BK) {
+      #pragma unroll
+      for (int i = 0; i < BM; i += AsStep) {
+        As[AsRow + i][AsCol] = A[AStart + (i + AsRow) * K + k + AsCol];
+      }
+      #pragma unroll
+      for (int i = 0; i < BN; i += BsStep) {
+        Bs[BsRow][BsCol + i] = B[BStart + (k + BsRow) * N + BsCol + i];
+      }
+      __syncthreads();
+
+      AStart += BK;
+      BStart += BK * N;
+
+      #pragma unroll
+      for (int i = 0; i < BK; ++i) {
+        reg[TM] = Bs[i][tx];
+        #pragma unroll
+        for (int j = 0; j < TM; ++j) {
+          reg[j] += As[ty * TM + j][i] * reg[TM];
+        }
+      }
+    }
+
+    #pragma unroll
+    for (int i = 0; i < TM; ++i) {
+      C[CStart + (ty * TM + i) * N + tx] = alpha * reg[i] + beta * C[CStart + (ty * TM + i) * N + tx];
+    }
 }

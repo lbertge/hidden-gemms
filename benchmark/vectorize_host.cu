@@ -7,6 +7,12 @@
 #include <random>
 #include <iostream>
 
+// Block tiling parameters
+const int BM = 64;
+const int BN = 64;
+const int BK = 8;
+const int TM = 8;
+
 // Benchmark function
 void benchmark(int M, int N, int K, int num_iterations = 10) {
     size_t size_A = M * K * sizeof(float);
@@ -86,10 +92,10 @@ void benchmark(int M, int N, int K, int num_iterations = 10) {
     
     // Print results
     printf("Matrix dimensions: M=%d, N=%d, K=%d\n", M, N, K);
+    printf("Block tiling params: BM=%d, BN=%d, BK=%d, TM=%d\n", BM, BN, BK, TM);
     printf("Vectorize implementation: %.3f ms (%.2f GFLOP/s)\n", vectorize_time, vectorize_gflops);
     printf("cuBLAS implementation: %.3f ms (%.2f GFLOP/s)\n", cublas_time, cublas_gflops);
-    printf("Performance ratio:\n");
-    printf("  cuBLAS/vectorize: %.2fx\n", vectorize_time/cublas_time);
+    printf("Performance ratio (cuBLAS/Vectorize): %.2fx\n", vectorize_time/cublas_time);
     
     // Verify results
     cudaMemcpy(h_C, d_C, size_C, cudaMemcpyDeviceToHost);
