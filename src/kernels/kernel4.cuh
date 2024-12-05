@@ -8,7 +8,6 @@ __global__ void block_tiling_1d_kernel(const float *A, const float *B, float *C,
 
     int bx = blockIdx.x;
     int by = blockIdx.y;
-    int thread_num = blockDim.x;
 
     int tx = threadIdx.x % BN;
     int ty = threadIdx.x / BN * TM;
