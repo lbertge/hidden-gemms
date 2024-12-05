@@ -8,8 +8,7 @@
 
 #define EPSILON 1e-2
 
-template <typename T>
-bool compare_results(const T* kernel, const T* cublas, int M, int N) {
+bool compare_results(const float* kernel, const float* cublas, int M, int N) {
     bool match = true;
     for (int i = 0; i < M * N; ++i) {
         if (std::fabs(kernel[i] - cublas[i]) > EPSILON) {

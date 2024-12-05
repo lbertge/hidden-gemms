@@ -2,8 +2,7 @@
 
 #include <cublas_v2.h>
 
-template <typename T>
-bool compare_results(const T* kernel, const T* cublas, int M, int N);
+bool compare_results(const float* kernel, const float* cublas, int M, int N);
 
 void naive_host(float* A, float* B, float* C, int M, int N, int K, float alpha, float beta);
 
