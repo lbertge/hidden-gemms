@@ -16,6 +16,67 @@ In other matmul implementations I have found, this seems OK, relative error tole
 # Benchmarks
 
 # The following benchmarks run on an RTX 4090
+## Vectorized Loads
+```
+Matrix dimensions: M=1024, N=1024, K=1024
+Block tiling params: BM=128, BN=128, BK=8, TM=8, TN=8
+Vectorized implementation: 0.125 ms (17147.60 GFLOP/s)
+cuBLAS implementation: 0.051 ms (41700.65 GFLOP/s)
+Performance ratio (cuBLAS/Vectorized): 2.43x
+PASSED
+
+Matrix dimensions: M=2048, N=2048, K=2048
+Block tiling params: BM=128, BN=128, BK=8, TM=8, TN=8
+Vectorized implementation: 0.372 ms (46230.96 GFLOP/s)
+cuBLAS implementation: 0.277 ms (61977.16 GFLOP/s)
+Performance ratio (cuBLAS/Vectorized): 1.34x
+PASSED
+
+Matrix dimensions: M=4096, N=4096, K=4096
+Block tiling params: BM=128, BN=128, BK=8, TM=8, TN=8
+Vectorized implementation: 2.934 ms (46839.20 GFLOP/s)
+cuBLAS implementation: 2.446 ms (56183.91 GFLOP/s)
+Performance ratio (cuBLAS/Vectorized): 1.20x
+PASSED
+
+Matrix dimensions: M=8192, N=8192, K=8192
+Block tiling params: BM=128, BN=128, BK=8, TM=8, TN=8
+Vectorized implementation: 28.723 ms (38280.08 GFLOP/s)
+cuBLAS implementation: 19.219 ms (57208.26 GFLOP/s)
+Performance ratio (cuBLAS/Vectorized): 1.49x
+PASSED
+```
+
+## 2D Blocktiling
+```
+Matrix dimensions: M=1024, N=1024, K=1024
+Block tiling params: BM=128, BN=128, BK=8, TM=8, TN=8
+2D Tiling implementation: 0.149 ms (14373.90 GFLOP/s)
+cuBLAS implementation: 0.051 ms (41775.94 GFLOP/s)
+Performance ratio (cuBLAS/2D Tiling): 2.91x
+PASSED                                                                                                                                                                "automl-competition" 10:09 05-Dec-24
+
+Matrix dimensions: M=2048, N=2048, K=2048
+Block tiling params: BM=128, BN=128, BK=8, TM=8, TN=8
+2D Tiling implementation: 0.464 ms (37003.12 GFLOP/s)
+cuBLAS implementation: 0.278 ms (61766.80 GFLOP/s)
+Performance ratio (cuBLAS/2D Tiling): 1.67x
+PASSED
+
+Matrix dimensions: M=4096, N=4096, K=4096
+Block tiling params: BM=128, BN=128, BK=8, TM=8, TN=8
+2D Tiling implementation: 3.690 ms (37250.62 GFLOP/s)
+cuBLAS implementation: 2.437 ms (56389.27 GFLOP/s)
+Performance ratio (cuBLAS/2D Tiling): 1.51x
+PASSED
+
+Matrix dimensions: M=8192, N=8192, K=8192
+Block tiling params: BM=128, BN=128, BK=8, TM=8, TN=8
+2D Tiling implementation: 33.185 ms (33133.21 GFLOP/s)
+cuBLAS implementation: 19.106 ms (57547.68 GFLOP/s)
+Performance ratio (cuBLAS/2D Tiling): 1.74x
+```
+
 ## Blocktiling 
 
 ```
