@@ -45,7 +45,7 @@ __global__ void block_tiling_2d_kernel(const float *A, const float *B, float *C,
     #pragma unroll
     for (int i = 0; i < TM; ++i) {
         for (int j = 0; j < TN; ++j) {
-            C[CStart + (ty + i) * N + tx + l] = alpha * reg[i][j] + beta * C[CStart + (ty + i) * N + tx + l];
+            C[CStart + (ty + i) * N + tx + j] = alpha * reg[i][j] + beta * C[CStart + (ty + i) * N + tx + j];
         }
     }
 }
