@@ -27,8 +27,8 @@ __global__ void block_tiling_1d_kernel(const float *A, const float *B, float *C,
 
     #pragma unroll
     for (int k = 0; k < K; k += BK) {
-      As[AsRow + i][AsCol] = A[AStart + (AsRow + i) * K + AsCol];
-      Bs[BsRow + i][BsCol] = B[BStart + (BsRow + i) * N + BsCol];
+      As[AsRow][AsCol] = A[AStart + AsRow * K + AsCol];
+      Bs[BsRow][BsCol] = B[BStart + BsRow * N + BsCol];
       __syncthreads();
 
       AStart += BK;
