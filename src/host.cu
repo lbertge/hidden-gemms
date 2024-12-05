@@ -15,13 +15,12 @@ bool compare_results(const T* kernel, const T* cublas, int M, int N) {
         if (std::fabs(kernel[i] - cublas[i]) > EPSILON) {
             match = false;
             std::cout << "Mismatch at index " << i 
-                        << " (row " << i / n << ", col " << i % n << "): "
-                        << "Kernel result = " << kernel[i] 
-                        << ", Cublas result = " << cublas[i] 
-                        << ", diff = " << std::fabs(kernel[i] - cublas[i]) 
-                        << '\n';
+                      << " (row " << i / N << ", col " << i % N << "): "
+                      << "Kernel result = " << kernel[i] 
+                      << ", Cublas result = " << cublas[i] 
+                      << ", diff = " << std::fabs(kernel[i] - cublas[i]) 
+                      << '\n';
         }
-
     }
     return match;
 }
