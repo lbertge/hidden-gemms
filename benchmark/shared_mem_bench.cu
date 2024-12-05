@@ -21,7 +21,7 @@ void benchmark(int M, int N, int K, int num_iterations = 10) {
     // Initialize matrices
     int some_seed = 759;
     std::mt19937 generator(some_seed);
-    std::uniform_real_distribution<float> distribution(0.0f, 1.0f);
+    std::uniform_real_distribution<float> distribution(-10.0f, 10.0f);
     for (int i = 0; i < M * K; i++) h_A[i] = distribution(generator);
     for (int i = 0; i < K * N; i++) h_B[i] = distribution(generator);
     for (int i = 0; i < M * N; i++) h_C[i] = distribution(generator);  // Initialize C as well
@@ -96,7 +96,7 @@ void benchmark(int M, int N, int K, int num_iterations = 10) {
     cudaMemcpy(h_C_cublas, d_C_cublas, size_C, cudaMemcpyDeviceToHost);
     
     // assert that the results are within some epsilon of each other
-    float epsilon = 1e-2;
+    float epsilon = 1e-3;
     for (int i = 0; i < M * N; i++) {
         assert(fabs(h_C[i] - h_C_cublas[i]) < epsilon);
     }
