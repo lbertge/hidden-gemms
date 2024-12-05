@@ -94,9 +94,9 @@ void benchmark(int M, int N, int K, int num_iterations = 10) {
     // Print results
     printf("Matrix dimensions: M=%d, N=%d, K=%d\n", M, N, K);
     printf("Block tiling params: BM=%d, BN=%d, BK=%d, TM=%d\n", BM, BN, BK, TM);
-    printf("1D Block Tiling: %.3f ms (%.2f GFLOP/s)\n", custom_time, custom_gflops);
-    printf("cuBLAS: %.3f ms (%.2f GFLOP/s)\n", cublas_time, cublas_gflops);
-    printf("Performance ratio (custom/cuBLAS): %.2fx\n", cublas_time/custom_time);
+    printf("1D Tiling implementation: %.3f ms (%.2f GFLOP/s)\n", custom_time, custom_gflops);
+    printf("cuBLAS implementation: %.3f ms (%.2f GFLOP/s)\n", cublas_time, cublas_gflops);
+    printf("Performance ratio (cuBLAS/1D Tiling): %.2fx\n", custom_time/cublas_time);
     
     // Verify results
     cudaMemcpy(h_C, d_C, size_C, cudaMemcpyDeviceToHost);

@@ -88,9 +88,9 @@ void benchmark(int M, int N, int K, int num_iterations = 10) {
     
     // Print results
     printf("Matrix dimensions: M=%d, N=%d, K=%d\n", M, N, K);
-    printf("Custom implementation: %.3f ms (%.2f GFLOP/s)\n", custom_time, gflops);
+    printf("Shared_Mem implementation: %.3f ms (%.2f GFLOP/s)\n", custom_time, gflops);
     printf("cuBLAS implementation: %.3f ms (%.2f GFLOP/s)\n", cublas_time, cublas_gflops);
-    printf("Performance ratio (cuBLAS/custom): %.2fx\n", custom_time/cublas_time);
+    printf("Performance ratio (cuBLAS/Shared_Mem): %.2fx\n", custom_time/cublas_time);
     
     // Verify results
     cudaMemcpy(h_C, d_C, size_C, cudaMemcpyDeviceToHost);
