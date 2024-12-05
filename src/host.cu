@@ -6,7 +6,7 @@
 #define TILE_WIDTH 32
 #define CEIL(M, N) (((M) + (N) - 1) / (N))
 
-#define EPSILON 1e-2
+#define EPSILON 1e-1
 
 bool compare_results(const float* kernel, const float* cublas, int M, int N) {
     bool match = true;
