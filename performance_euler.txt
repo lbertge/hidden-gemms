@@ -1,0 +1,512 @@
+Matrix dimensions: M=256, N=256, K=256
+cuBLAS implementation: 0.014 ms (2445.37 GFLOP/s)
+Naive implementation: 0.257 ms (130.45 GFLOP/s)
+Coalesced implementation: 0.033 ms (1008.25 GFLOP/s)
+Shared memory implementation: 0.026 ms (1280.00 GFLOP/s)
+Block tiling 1D implementation: 0.023 ms (1489.45 GFLOP/s)
+Block tiling 2D implementation: 0.049 ms (679.83 GFLOP/s)
+Vectorized implementation: 0.039 ms (853.33 GFLOP/s)
+Performance ratios:
+  cuBLAS/naive: 18.75x
+  cuBLAS/coalesced: 2.43x
+  cuBLAS/shared: 1.91x
+  cuBLAS/block1D: 1.64x
+  cuBLAS/block2D: 3.60x
+  cuBLAS/vectorized: 2.87x
+
+Matrix dimensions: M=512, N=512, K=512
+cuBLAS implementation: 0.032 ms (8511.17 GFLOP/s)
+Naive implementation: 1.519 ms (176.67 GFLOP/s)
+Coalesced implementation: 0.189 ms (1420.83 GFLOP/s)
+Shared memory implementation: 0.146 ms (1842.19 GFLOP/s)
+Block tiling 1D implementation: 0.068 ms (3953.91 GFLOP/s)
+Block tiling 2D implementation: 0.093 ms (2892.92 GFLOP/s)
+Vectorized implementation: 0.076 ms (3542.49 GFLOP/s)
+Performance ratios:
+  cuBLAS/naive: 48.18x
+  cuBLAS/coalesced: 5.99x
+  cuBLAS/shared: 4.62x
+  cuBLAS/block1D: 2.15x
+  cuBLAS/block2D: 2.94x
+  cuBLAS/vectorized: 2.40x
+
+Matrix dimensions: M=768, N=768, K=768
+cuBLAS implementation: 0.077 ms (11825.55 GFLOP/s)
+Naive implementation: 4.613 ms (196.40 GFLOP/s)
+Coalesced implementation: 0.559 ms (1619.80 GFLOP/s)
+Shared memory implementation: 0.435 ms (2081.56 GFLOP/s)
+Block tiling 1D implementation: 0.150 ms (6051.55 GFLOP/s)
+Block tiling 2D implementation: 0.140 ms (6462.64 GFLOP/s)
+Vectorized implementation: 0.112 ms (8057.70 GFLOP/s)
+Performance ratios:
+  cuBLAS/naive: 60.21x
+  cuBLAS/coalesced: 7.30x
+  cuBLAS/shared: 5.68x
+  cuBLAS/block1D: 1.95x
+  cuBLAS/block2D: 1.83x
+  cuBLAS/vectorized: 1.47x
+
+Matrix dimensions: M=1024, N=1024, K=1024
+cuBLAS implementation: 0.153 ms (14027.77 GFLOP/s)
+Naive implementation: 10.934 ms (196.40 GFLOP/s)
+Coalesced implementation: 1.279 ms (1678.80 GFLOP/s)
+Shared memory implementation: 0.981 ms (2189.55 GFLOP/s)
+Block tiling 1D implementation: 0.362 ms (5927.51 GFLOP/s)
+Block tiling 2D implementation: 0.268 ms (8002.20 GFLOP/s)
+Vectorized implementation: 0.219 ms (9822.73 GFLOP/s)
+Performance ratios:
+  cuBLAS/naive: 71.42x
+  cuBLAS/coalesced: 8.36x
+  cuBLAS/shared: 6.41x
+  cuBLAS/block1D: 2.37x
+  cuBLAS/block2D: 1.75x
+  cuBLAS/vectorized: 1.43x
+
+Matrix dimensions: M=1280, N=1280, K=1280
+cuBLAS implementation: 0.292 ms (14387.07 GFLOP/s)
+Naive implementation: 20.430 ms (205.30 GFLOP/s)
+Coalesced implementation: 2.454 ms (1708.87 GFLOP/s)
+Shared memory implementation: 1.887 ms (2223.32 GFLOP/s)
+Block tiling 1D implementation: 0.655 ms (6406.01 GFLOP/s)
+Block tiling 2D implementation: 0.534 ms (7861.80 GFLOP/s)
+Vectorized implementation: 0.446 ms (9403.12 GFLOP/s)
+Performance ratios:
+  cuBLAS/naive: 70.08x
+  cuBLAS/coalesced: 8.42x
+  cuBLAS/shared: 6.47x
+  cuBLAS/block1D: 2.25x
+  cuBLAS/block2D: 1.83x
+  cuBLAS/vectorized: 1.53x
+
+Matrix dimensions: M=1536, N=1536, K=1536
+cuBLAS implementation: 0.461 ms (15718.16 GFLOP/s)
+Naive implementation: 34.354 ms (210.97 GFLOP/s)
+Coalesced implementation: 4.154 ms (1744.61 GFLOP/s)
+Shared memory implementation: 3.218 ms (2252.10 GFLOP/s)
+Block tiling 1D implementation: 1.037 ms (6987.06 GFLOP/s)
+Block tiling 2D implementation: 0.638 ms (11362.80 GFLOP/s)
+Vectorized implementation: 0.523 ms (13848.34 GFLOP/s)
+Performance ratios:
+  cuBLAS/naive: 74.50x
+  cuBLAS/coalesced: 9.01x
+  cuBLAS/shared: 6.98x
+  cuBLAS/block1D: 2.25x
+  cuBLAS/block2D: 1.38x
+  cuBLAS/vectorized: 1.14x
+
+Matrix dimensions: M=1792, N=1792, K=1792
+cuBLAS implementation: 0.838 ms (13731.73 GFLOP/s)
+Naive implementation: 54.493 ms (211.20 GFLOP/s)
+Coalesced implementation: 6.645 ms (1731.89 GFLOP/s)
+Shared memory implementation: 5.066 ms (2271.96 GFLOP/s)
+Block tiling 1D implementation: 1.690 ms (6809.71 GFLOP/s)
+Block tiling 2D implementation: 1.170 ms (9834.99 GFLOP/s)
+Vectorized implementation: 0.986 ms (11673.69 GFLOP/s)
+Performance ratios:
+  cuBLAS/naive: 65.02x
+  cuBLAS/coalesced: 7.93x
+  cuBLAS/shared: 6.04x
+  cuBLAS/block1D: 2.02x
+  cuBLAS/block2D: 1.40x
+  cuBLAS/vectorized: 1.18x
+
+Matrix dimensions: M=2048, N=2048, K=2048
+cuBLAS implementation: 1.179 ms (14566.09 GFLOP/s)
+Naive implementation: 80.716 ms (212.84 GFLOP/s)
+Coalesced implementation: 10.246 ms (1676.68 GFLOP/s)
+Shared memory implementation: 7.759 ms (2214.18 GFLOP/s)
+Block tiling 1D implementation: 2.600 ms (6606.72 GFLOP/s)
+Block tiling 2D implementation: 1.574 ms (10913.43 GFLOP/s)
+Vectorized implementation: 1.346 ms (12760.28 GFLOP/s)
+Performance ratios:
+  cuBLAS/naive: 68.44x
+  cuBLAS/coalesced: 8.69x
+  cuBLAS/shared: 6.58x
+  cuBLAS/block1D: 2.20x
+  cuBLAS/block2D: 1.33x
+  cuBLAS/vectorized: 1.14x
+
+Matrix dimensions: M=2304, N=2304, K=2304
+cuBLAS implementation: 1.706 ms (14336.74 GFLOP/s)
+Naive implementation: 115.406 ms (211.96 GFLOP/s)
+Coalesced implementation: 14.688 ms (1665.41 GFLOP/s)
+Shared memory implementation: 11.099 ms (2203.88 GFLOP/s)
+Block tiling 1D implementation: 3.578 ms (6836.47 GFLOP/s)
+Block tiling 2D implementation: 2.138 ms (11438.91 GFLOP/s)
+Vectorized implementation: 1.974 ms (12389.98 GFLOP/s)
+Performance ratios:
+  cuBLAS/naive: 67.64x
+  cuBLAS/coalesced: 8.61x
+  cuBLAS/shared: 6.51x
+  cuBLAS/block1D: 2.10x
+  cuBLAS/block2D: 1.25x
+  cuBLAS/vectorized: 1.16x
+
+Matrix dimensions: M=2560, N=2560, K=2560
+cuBLAS implementation: 2.329 ms (14405.42 GFLOP/s)
+Naive implementation: 160.778 ms (208.70 GFLOP/s)
+Coalesced implementation: 19.738 ms (1699.98 GFLOP/s)
+Shared memory implementation: 14.999 ms (2237.14 GFLOP/s)
+Block tiling 1D implementation: 4.947 ms (6782.72 GFLOP/s)
+Block tiling 2D implementation: 2.997 ms (11194.70 GFLOP/s)
+Vectorized implementation: 2.556 ms (13126.63 GFLOP/s)
+Performance ratios:
+  cuBLAS/naive: 69.02x
+  cuBLAS/coalesced: 8.47x
+  cuBLAS/shared: 6.44x
+  cuBLAS/block1D: 2.12x
+  cuBLAS/block2D: 1.29x
+  cuBLAS/vectorized: 1.10x
+
+Matrix dimensions: M=2816, N=2816, K=2816
+cuBLAS implementation: 3.171 ms (14082.27 GFLOP/s)
+Naive implementation: 209.800 ms (212.87 GFLOP/s)
+Coalesced implementation: 25.772 ms (1732.94 GFLOP/s)
+Shared memory implementation: 19.870 ms (2247.65 GFLOP/s)
+Block tiling 1D implementation: 6.586 ms (6780.92 GFLOP/s)
+Block tiling 2D implementation: 4.250 ms (10507.68 GFLOP/s)
+Vectorized implementation: 3.452 ms (12939.21 GFLOP/s)
+Performance ratios:
+  cuBLAS/naive: 66.15x
+  cuBLAS/coalesced: 8.13x
+  cuBLAS/shared: 6.27x
+  cuBLAS/block1D: 2.08x
+  cuBLAS/block2D: 1.34x
+  cuBLAS/vectorized: 1.09x
+
+Matrix dimensions: M=3072, N=3072, K=3072
+cuBLAS implementation: 3.723 ms (15575.48 GFLOP/s)
+Naive implementation: 274.603 ms (211.15 GFLOP/s)
+Coalesced implementation: 35.701 ms (1624.10 GFLOP/s)
+Shared memory implementation: 26.990 ms (2148.26 GFLOP/s)
+Block tiling 1D implementation: 9.106 ms (6367.66 GFLOP/s)
+Block tiling 2D implementation: 5.103 ms (11363.26 GFLOP/s)
+Vectorized implementation: 4.260 ms (13609.36 GFLOP/s)
+Performance ratios:
+  cuBLAS/naive: 73.77x
+  cuBLAS/coalesced: 9.59x
+  cuBLAS/shared: 7.25x
+  cuBLAS/block1D: 2.45x
+  cuBLAS/block2D: 1.37x
+  cuBLAS/vectorized: 1.14x
+
+Matrix dimensions: M=3328, N=3328, K=3328
+cuBLAS implementation: 5.160 ms (14287.96 GFLOP/s)
+Naive implementation: 346.604 ms (212.69 GFLOP/s)
+Coalesced implementation: 51.610 ms (1428.39 GFLOP/s)
+Shared memory implementation: 35.851 ms (2056.29 GFLOP/s)
+Block tiling 1D implementation: 12.137 ms (6073.78 GFLOP/s)
+Block tiling 2D implementation: 7.080 ms (10412.85 GFLOP/s)
+Vectorized implementation: 5.811 ms (12685.69 GFLOP/s)
+Performance ratios:
+  cuBLAS/naive: 67.18x
+  cuBLAS/coalesced: 10.00x
+  cuBLAS/shared: 6.95x
+  cuBLAS/block1D: 2.35x
+  cuBLAS/block2D: 1.37x
+  cuBLAS/vectorized: 1.13x
+
+Matrix dimensions: M=3584, N=3584, K=3584
+cuBLAS implementation: 6.907 ms (13331.07 GFLOP/s)
+Naive implementation: 434.890 ms (211.72 GFLOP/s)
+Coalesced implementation: 62.585 ms (1471.17 GFLOP/s)
+Shared memory implementation: 45.666 ms (2016.22 GFLOP/s)
+Block tiling 1D implementation: 15.750 ms (5846.06 GFLOP/s)
+Block tiling 2D implementation: 8.873 ms (10376.37 GFLOP/s)
+Vectorized implementation: 7.281 ms (12645.79 GFLOP/s)
+Performance ratios:
+  cuBLAS/naive: 62.97x
+  cuBLAS/coalesced: 9.06x
+  cuBLAS/shared: 6.61x
+  cuBLAS/block1D: 2.28x
+  cuBLAS/block2D: 1.28x
+  cuBLAS/vectorized: 1.05x
+
+Matrix dimensions: M=3840, N=3840, K=3840
+cuBLAS implementation: 8.248 ms (13730.80 GFLOP/s)
+Naive implementation: 542.835 ms (208.62 GFLOP/s)
+Coalesced implementation: 78.272 ms (1446.83 GFLOP/s)
+Shared memory implementation: 56.287 ms (2011.94 GFLOP/s)
+Block tiling 1D implementation: 19.570 ms (5786.85 GFLOP/s)
+Block tiling 2D implementation: 10.822 ms (10464.11 GFLOP/s)
+Vectorized implementation: 8.866 ms (12773.68 GFLOP/s)
+Performance ratios:
+  cuBLAS/naive: 65.82x
+  cuBLAS/coalesced: 9.49x
+  cuBLAS/shared: 6.82x
+  cuBLAS/block1D: 2.37x
+  cuBLAS/block2D: 1.31x
+  cuBLAS/vectorized: 1.07x
+
+Matrix dimensions: M=4096, N=4096, K=4096
+cuBLAS implementation: 10.682 ms (12865.96 GFLOP/s)
+Naive implementation: 646.339 ms (212.64 GFLOP/s)
+Coalesced implementation: 92.062 ms (1492.90 GFLOP/s)
+Shared memory implementation: 67.780 ms (2027.71 GFLOP/s)
+Block tiling 1D implementation: 24.220 ms (5674.71 GFLOP/s)
+Block tiling 2D implementation: 12.845 ms (10699.84 GFLOP/s)
+Vectorized implementation: 10.999 ms (12495.92 GFLOP/s)
+Performance ratios:
+  cuBLAS/naive: 60.51x
+  cuBLAS/coalesced: 8.62x
+  cuBLAS/shared: 6.35x
+  cuBLAS/block1D: 2.27x
+  cuBLAS/block2D: 1.20x
+  cuBLAS/vectorized: 1.03x
+
+Matrix dimensions: M=4352, N=4352, K=4352
+cuBLAS implementation: 12.995 ms (12686.30 GFLOP/s)
+Naive implementation: 784.631 ms (210.10 GFLOP/s)
+Coalesced implementation: 109.921 ms (1499.74 GFLOP/s)
+Shared memory implementation: 81.842 ms (2014.27 GFLOP/s)
+Block tiling 1D implementation: 29.429 ms (5601.69 GFLOP/s)
+Block tiling 2D implementation: 15.903 ms (10366.07 GFLOP/s)
+Vectorized implementation: 13.563 ms (12154.99 GFLOP/s)
+Performance ratios:
+  cuBLAS/naive: 60.38x
+  cuBLAS/coalesced: 8.46x
+  cuBLAS/shared: 6.30x
+  cuBLAS/block1D: 2.26x
+  cuBLAS/block2D: 1.22x
+  cuBLAS/vectorized: 1.04x
+
+Matrix dimensions: M=4608, N=4608, K=4608
+cuBLAS implementation: 14.155 ms (13824.80 GFLOP/s)
+Naive implementation: 926.662 ms (211.18 GFLOP/s)
+Coalesced implementation: 142.791 ms (1370.46 GFLOP/s)
+Shared memory implementation: 97.957 ms (1997.71 GFLOP/s)
+Block tiling 1D implementation: 34.911 ms (5605.41 GFLOP/s)
+Block tiling 2D implementation: 18.331 ms (10675.61 GFLOP/s)
+Vectorized implementation: 15.942 ms (12274.74 GFLOP/s)
+Performance ratios:
+  cuBLAS/naive: 65.47x
+  cuBLAS/coalesced: 10.09x
+  cuBLAS/shared: 6.92x
+  cuBLAS/block1D: 2.47x
+  cuBLAS/block2D: 1.29x
+  cuBLAS/vectorized: 1.13x
+
+Matrix dimensions: M=4864, N=4864, K=4864
+cuBLAS implementation: 18.240 ms (12617.94 GFLOP/s)
+Naive implementation: 1083.295 ms (212.45 GFLOP/s)
+Coalesced implementation: 162.874 ms (1413.06 GFLOP/s)
+Shared memory implementation: 114.102 ms (2017.06 GFLOP/s)
+Block tiling 1D implementation: 41.069 ms (5604.04 GFLOP/s)
+Block tiling 2D implementation: 22.152 ms (10389.50 GFLOP/s)
+Vectorized implementation: 18.944 ms (12148.89 GFLOP/s)
+Performance ratios:
+  cuBLAS/naive: 59.39x
+  cuBLAS/coalesced: 8.93x
+  cuBLAS/shared: 6.26x
+  cuBLAS/block1D: 2.25x
+  cuBLAS/block2D: 1.21x
+  cuBLAS/vectorized: 1.04x
+
+Matrix dimensions: M=5120, N=5120, K=5120
+cuBLAS implementation: 17.342 ms (15479.15 GFLOP/s)
+Naive implementation: 1284.006 ms (209.06 GFLOP/s)
+Coalesced implementation: 182.450 ms (1471.28 GFLOP/s)
+Shared memory implementation: 133.010 ms (2018.16 GFLOP/s)
+Block tiling 1D implementation: 47.803 ms (5615.39 GFLOP/s)
+Block tiling 2D implementation: 25.513 ms (10521.42 GFLOP/s)
+Vectorized implementation: 21.978 ms (12213.88 GFLOP/s)
+Performance ratios:
+  cuBLAS/naive: 74.04x
+  cuBLAS/coalesced: 10.52x
+  cuBLAS/shared: 7.67x
+  cuBLAS/block1D: 2.76x
+  cuBLAS/block2D: 1.47x
+  cuBLAS/vectorized: 1.27x
+
+Matrix dimensions: M=5376, N=5376, K=5376
+cuBLAS implementation: 20.269 ms (15330.82 GFLOP/s)
+Naive implementation: 1467.864 ms (211.70 GFLOP/s)
+Coalesced implementation: 213.500 ms (1455.49 GFLOP/s)
+Shared memory implementation: 153.947 ms (2018.53 GFLOP/s)
+Block tiling 1D implementation: 55.520 ms (5597.01 GFLOP/s)
+Block tiling 2D implementation: 29.577 ms (10506.46 GFLOP/s)
+Vectorized implementation: 25.920 ms (11988.72 GFLOP/s)
+Performance ratios:
+  cuBLAS/naive: 72.42x
+  cuBLAS/coalesced: 10.53x
+  cuBLAS/shared: 7.60x
+  cuBLAS/block1D: 2.74x
+  cuBLAS/block2D: 1.46x
+  cuBLAS/vectorized: 1.28x
+
+Matrix dimensions: M=5632, N=5632, K=5632
+cuBLAS implementation: 23.059 ms (15494.53 GFLOP/s)
+Naive implementation: 1677.124 ms (213.04 GFLOP/s)
+Coalesced implementation: 240.512 ms (1485.53 GFLOP/s)
+Shared memory implementation: 176.579 ms (2023.39 GFLOP/s)
+Block tiling 1D implementation: 64.000 ms (5582.58 GFLOP/s)
+Block tiling 2D implementation: 34.097 ms (10478.49 GFLOP/s)
+Vectorized implementation: 30.716 ms (11631.85 GFLOP/s)
+Performance ratios:
+  cuBLAS/naive: 72.73x
+  cuBLAS/coalesced: 10.43x
+  cuBLAS/shared: 7.66x
+  cuBLAS/block1D: 2.78x
+  cuBLAS/block2D: 1.48x
+  cuBLAS/vectorized: 1.33x
+
+Matrix dimensions: M=5888, N=5888, K=5888
+cuBLAS implementation: 26.552 ms (15375.51 GFLOP/s)
+Naive implementation: 1918.242 ms (212.83 GFLOP/s)
+Coalesced implementation: 273.537 ms (1492.51 GFLOP/s)
+Shared memory implementation: 201.711 ms (2023.97 GFLOP/s)
+Block tiling 1D implementation: 73.035 ms (5589.84 GFLOP/s)
+Block tiling 2D implementation: 39.266 ms (10397.26 GFLOP/s)
+Vectorized implementation: 34.730 ms (11755.17 GFLOP/s)
+Performance ratios:
+  cuBLAS/naive: 72.24x
+  cuBLAS/coalesced: 10.30x
+  cuBLAS/shared: 7.60x
+  cuBLAS/block1D: 2.75x
+  cuBLAS/block2D: 1.48x
+  cuBLAS/vectorized: 1.31x
+
+Matrix dimensions: M=6144, N=6144, K=6144
+cuBLAS implementation: 30.175 ms (15372.09 GFLOP/s)
+Naive implementation: 2192.886 ms (211.53 GFLOP/s)
+Coalesced implementation: 383.402 ms (1209.85 GFLOP/s)
+Shared memory implementation: 229.523 ms (2020.96 GFLOP/s)
+Block tiling 1D implementation: 83.192 ms (5575.73 GFLOP/s)
+Block tiling 2D implementation: 43.824 ms (10584.57 GFLOP/s)
+Vectorized implementation: 39.783 ms (11659.63 GFLOP/s)
+Performance ratios:
+  cuBLAS/naive: 72.67x
+  cuBLAS/coalesced: 12.71x
+  cuBLAS/shared: 7.61x
+  cuBLAS/block1D: 2.76x
+  cuBLAS/block2D: 1.45x
+  cuBLAS/vectorized: 1.32x
+
+Matrix dimensions: M=6400, N=6400, K=6400
+cuBLAS implementation: 35.165 ms (14909.51 GFLOP/s)
+Naive implementation: 2485.300 ms (210.96 GFLOP/s)
+Coalesced implementation: 365.121 ms (1435.93 GFLOP/s)
+Shared memory implementation: 259.100 ms (2023.50 GFLOP/s)
+Block tiling 1D implementation: 94.300 ms (5559.79 GFLOP/s)
+Block tiling 2D implementation: 50.622 ms (10356.99 GFLOP/s)
+Vectorized implementation: 45.418 ms (11543.59 GFLOP/s)
+Performance ratios:
+  cuBLAS/naive: 70.68x
+  cuBLAS/coalesced: 10.38x
+  cuBLAS/shared: 7.37x
+  cuBLAS/block1D: 2.68x
+  cuBLAS/block2D: 1.44x
+  cuBLAS/vectorized: 1.29x
+
+Matrix dimensions: M=6656, N=6656, K=6656
+cuBLAS implementation: 38.695 ms (15241.13 GFLOP/s)
+Naive implementation: 2773.936 ms (212.61 GFLOP/s)
+Coalesced implementation: 507.699 ms (1161.62 GFLOP/s)
+Shared memory implementation: 293.100 ms (2012.12 GFLOP/s)
+Block tiling 1D implementation: 106.252 ms (5550.49 GFLOP/s)
+Block tiling 2D implementation: 56.987 ms (10348.97 GFLOP/s)
+Vectorized implementation: 50.645 ms (11644.88 GFLOP/s)
+Performance ratios:
+  cuBLAS/naive: 71.69x
+  cuBLAS/coalesced: 13.12x
+  cuBLAS/shared: 7.57x
+  cuBLAS/block1D: 2.75x
+  cuBLAS/block2D: 1.47x
+  cuBLAS/vectorized: 1.31x
+
+Matrix dimensions: M=6912, N=6912, K=6912
+cuBLAS implementation: 43.488 ms (15187.15 GFLOP/s)
+Naive implementation: 3113.577 ms (212.12 GFLOP/s)
+Coalesced implementation: 591.080 ms (1117.36 GFLOP/s)
+Shared memory implementation: 326.893 ms (2020.39 GFLOP/s)
+Block tiling 1D implementation: 118.856 ms (5556.75 GFLOP/s)
+Block tiling 2D implementation: 63.666 ms (10373.64 GFLOP/s)
+Vectorized implementation: 56.479 ms (11693.78 GFLOP/s)
+Performance ratios:
+  cuBLAS/naive: 71.60x
+  cuBLAS/coalesced: 13.59x
+  cuBLAS/shared: 7.52x
+  cuBLAS/block1D: 2.73x
+  cuBLAS/block2D: 1.46x
+  cuBLAS/vectorized: 1.30x
+
+Matrix dimensions: M=7168, N=7168, K=7168
+cuBLAS implementation: 47.990 ms (15348.83 GFLOP/s)
+Naive implementation: 3457.759 ms (213.02 GFLOP/s)
+Coalesced implementation: 678.149 ms (1086.17 GFLOP/s)
+Shared memory implementation: 364.892 ms (2018.64 GFLOP/s)
+Block tiling 1D implementation: 132.514 ms (5558.56 GFLOP/s)
+Block tiling 2D implementation: 70.621 ms (10430.19 GFLOP/s)
+Vectorized implementation: 63.803 ms (11544.77 GFLOP/s)
+Performance ratios:
+  cuBLAS/naive: 72.05x
+  cuBLAS/coalesced: 14.13x
+  cuBLAS/shared: 7.60x
+  cuBLAS/block1D: 2.76x
+  cuBLAS/block2D: 1.47x
+  cuBLAS/vectorized: 1.33x
+
+Matrix dimensions: M=7424, N=7424, K=7424
+cuBLAS implementation: 53.400 ms (15324.97 GFLOP/s)
+Naive implementation: 3844.850 ms (212.85 GFLOP/s)
+Coalesced implementation: 752.692 ms (1087.24 GFLOP/s)
+Shared memory implementation: 405.174 ms (2019.77 GFLOP/s)
+Block tiling 1D implementation: 147.010 ms (5566.68 GFLOP/s)
+Block tiling 2D implementation: 79.269 ms (10323.84 GFLOP/s)
+Vectorized implementation: 70.908 ms (11541.21 GFLOP/s)
+Performance ratios:
+  cuBLAS/naive: 72.00x
+  cuBLAS/coalesced: 14.10x
+  cuBLAS/shared: 7.59x
+  cuBLAS/block1D: 2.75x
+  cuBLAS/block2D: 1.48x
+  cuBLAS/vectorized: 1.33x
+
+Matrix dimensions: M=7680, N=7680, K=7680
+cuBLAS implementation: 60.151 ms (15061.49 GFLOP/s)
+Naive implementation: 4345.181 ms (208.50 GFLOP/s)
+Coalesced implementation: 855.238 ms (1059.32 GFLOP/s)
+Shared memory implementation: 448.789 ms (2018.70 GFLOP/s)
+Block tiling 1D implementation: 162.605 ms (5571.60 GFLOP/s)
+Block tiling 2D implementation: 88.292 ms (10261.09 GFLOP/s)
+Vectorized implementation: 77.447 ms (11697.95 GFLOP/s)
+Performance ratios:
+  cuBLAS/naive: 72.24x
+  cuBLAS/coalesced: 14.22x
+  cuBLAS/shared: 7.46x
+  cuBLAS/block1D: 2.70x
+  cuBLAS/block2D: 1.47x
+  cuBLAS/vectorized: 1.29x
+
+Matrix dimensions: M=7936, N=7936, K=7936
+cuBLAS implementation: 65.066 ms (15363.10 GFLOP/s)
+Naive implementation: 4693.850 ms (212.96 GFLOP/s)
+Coalesced implementation: 952.523 ms (1049.44 GFLOP/s)
+Shared memory implementation: 494.815 ms (2020.19 GFLOP/s)
+Block tiling 1D implementation: 179.767 ms (5560.64 GFLOP/s)
+Block tiling 2D implementation: 98.772 ms (10120.47 GFLOP/s)
+Vectorized implementation: 87.023 ms (11486.89 GFLOP/s)
+Performance ratios:
+  cuBLAS/naive: 72.14x
+  cuBLAS/coalesced: 14.64x
+  cuBLAS/shared: 7.60x
+  cuBLAS/block1D: 2.76x
+  cuBLAS/block2D: 1.52x
+  cuBLAS/vectorized: 1.34x
+
+Matrix dimensions: M=8192, N=8192, K=8192
+cuBLAS implementation: 70.889 ms (15510.38 GFLOP/s)
+Naive implementation: 5146.794 ms (213.63 GFLOP/s)
+Coalesced implementation: 1035.034 ms (1062.30 GFLOP/s)
+Shared memory implementation: 543.022 ms (2024.80 GFLOP/s)
+Block tiling 1D implementation: 197.824 ms (5558.04 GFLOP/s)
+Block tiling 2D implementation: 108.747 ms (10110.76 GFLOP/s)
+Vectorized implementation: 95.465 ms (11517.42 GFLOP/s)
+Performance ratios:
+  cuBLAS/naive: 72.60x
+  cuBLAS/coalesced: 14.60x
+  cuBLAS/shared: 7.66x
+  cuBLAS/block1D: 2.79x
+  cuBLAS/block2D: 1.53x
+  cuBLAS/vectorized: 1.35x
+
